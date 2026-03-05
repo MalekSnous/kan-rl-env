@@ -1,0 +1,161 @@
+{
+  "rl_round": 19,
+  "final_score": 0.6305,
+  "passed": false,
+  "target_score": 0.65,
+  "priority_order": [
+    "C",
+    "A",
+    "B",
+    "D"
+  ],
+  "datasets": {
+    "A": {
+      "score": 0.6382,
+      "delta": 0.0,
+      "priority": "\ud83d\udfe2 ACCEPTABLE",
+      "expression": "1.945*(0.522*x1 + 0.3918*x2 - 1)**2 + 7.748*np.sin(0.4894*x1 + 0.1261*(0.104 - x2)**2 - 7.69) - 6.9*np.sin(6.556*np.sqrt(1 - 0.1674*x2) + 0.1049*np.exp(0.7969*x1) - 1.156) + 1.454",
+      "best_expression_so_far": "1.945*(0.522*x1 + 0.3918*x2 - 1)**2 + 7.748*np.sin(0.4894*x1 + 0.1261*(0.104 - x2)**2 - 7.69) - 6.9*np.sin(6.556*np.sqrt(1 - 0.1674*x2) + 0.1049*np.exp(0.7969*x1) - 1.156) + 1.454",
+      "best_config": {
+        "score": 0.6382,
+        "width": "[2,3,1]",
+        "param_count": 220,
+        "round": 9,
+        "lr": 0.001,
+        "steps": 200,
+        "lambda_reg": 0.0001
+      },
+      "metrics": {
+        "generalization": 0.7303,
+        "parsimony": 0.0,
+        "consistency": 1.0,
+        "kan_conformity": 1.0,
+        "iid_score": 0.9265,
+        "ood1_score": 0.7486,
+        "ood2_score": 0.3905,
+        "ast_nodes": 100
+      },
+      "advice": [
+        "loss partially reduced (62% of initial: 0.2958\u21920.1826) but overfit detected (iid-ood2=0.54) \u2014 increase lambda_reg to 0.01 instead of more steps",
+        "OOD2 acceptable (ood2=0.39) but large IID-OOD2 gap (0.54). Slight overfit \u2014 try lambda_reg=0.005 to reduce gap.",
+        "PARSIMONY=0 (100 nodes, cap=60, x1.7) \u2014 losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2)."
+      ]
+    },
+    "B": {
+      "score": 0.6476,
+      "delta": -0.0111,
+      "priority": "\ud83d\udfe2 ACCEPTABLE",
+      "expression": "0.1942*(0.7493*x2 - 0.5912*(1 - 0.4632*x1)**2 + 1)**2 - 5.177*(0.02777*np.exp(1.477*x2) - 0.2624*np.sin(0.5604*x1 + 3.097) - 1)**2 + 1.817*np.sin(-1.591*np.sin(0.5273*x1 + 1.864) + 0.475*np.sin(0.879*x2 - 5.098) + 8.748) + 3.061",
+      "best_expression_so_far": "0.1891*(0.7454*x2 - 0.01987*(1 - 0.4677*x1)**2 + 1)**2 - 5.383*(0.02678*np.exp(1.473*x2) - 0.2654*np.sin(0.5689*x1 + 3.097) - 1)**2 + 1.818*np.sin(-1.724*np.sin(0.5236*x1 + 1.858) + 0.4864*np.sin(0.8842*x2 - 5.088) + 8.717) + 3.064",
+      "best_config": {
+        "score": 0.6587,
+        "width": "[2,3,1]",
+        "param_count": 220,
+        "round": 13,
+        "lr": 0.001,
+        "steps": 200,
+        "lambda_reg": 0.001
+      },
+      "metrics": {
+        "generalization": 0.7459,
+        "parsimony": 0.0,
+        "consistency": 1.0,
+        "kan_conformity": 1.0,
+        "iid_score": 0.9812,
+        "ood1_score": 0.8475,
+        "ood2_score": 0.2274,
+        "ast_nodes": 125
+      },
+      "advice": [
+        "STALE MODEL detected \u2014 same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.",
+        "OOD2 low (ood2=0.23, iid-ood2=0.75). Increase lambda_reg to 0.005-0.01 to force simpler expression.",
+        "PARSIMONY=0 (125 nodes, cap=60, x2.1) \u2014 losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2)."
+      ]
+    },
+    "C": {
+      "score": 0.5649,
+      "delta": -0.1181,
+      "priority": "\ud83d\udfe2 ACCEPTABLE",
+      "expression": "0.03324*x1 - 0.2748*x2 + 4.924*np.sqrt(-0.003981*x2 - np.sin(0.2415*x1 + 8.215) + 0.9906) - 0.5592*np.sin(0.9187*x1 + 3.856) - 1.359*np.sin(0.261*x2 - 1.292) - 1.638",
+      "best_expression_so_far": "-0.03161*x2 - 0.3056*np.exp(-0.00299*x2 + 2.399*np.sqrt(1 - 0.2339*x1)) + 0.3637*np.sin(0.9392*x1 - 5.711) + 0.8425*np.sin(5.013e-5*x1 - 2.969*np.sin(0.3329*x2 - 1.14) + 4.156) + 3.99",
+      "best_config": {
+        "score": 0.683,
+        "width": "[2,3,1]",
+        "param_count": 220,
+        "round": 15,
+        "lr": 0.001,
+        "steps": 200,
+        "lambda_reg": 0.0001
+      },
+      "metrics": {
+        "generalization": 0.6081,
+        "parsimony": 0.0,
+        "consistency": 1.0,
+        "kan_conformity": 1.0,
+        "iid_score": 0.7624,
+        "ood1_score": 0.6517,
+        "ood2_score": 0.3002,
+        "ast_nodes": 87
+      },
+      "advice": [
+        "STALE MODEL detected \u2014 same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.",
+        "loss barely reduced (81% of initial: 0.1191\u21920.0968) AND overfit detected \u2014 increase lambda_reg to 0.01, reduce steps to 300",
+        "PARSIMONY=0 (87 nodes, cap=60, x1.4) \u2014 losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2)."
+      ]
+    },
+    "D": {
+      "score": 0.6713,
+      "delta": -0.0055,
+      "priority": "\ud83d\udfe2 ACCEPTABLE",
+      "expression": "3.114*(-0.3545*x1 + 0.0251*np.sin(1.633*x2 - 3.961) + 1)**2 - 0.002547*np.exp(1.578*np.sin(0.9723*x1 + 1.761) - 5.222*np.sin(0.4395*x2 + 4.623)) - 0.1453*np.sin(0.0432*np.exp(1.287*x2) + 5.763*np.sin(0.7612*x1 - 8.492) + 7.311) + 0.02942",
+      "best_expression_so_far": "2.984*(-0.3386*x1 + 0.03183*np.sin(1.657*x2 - 3.977) + 1)**2 - 0.001892*np.exp(1.616*np.sin(0.9517*x1 + 1.753) - 5.437*np.sin(0.458*x2 + 4.61)) - 0.1433*np.sin(0.04432*np.exp(1.22*x2) + 6.391*np.sin(0.7077*x1 - 8.543) + 8.106) + 0.005716",
+      "best_config": {
+        "score": 0.6768,
+        "width": "[2,3,1]",
+        "param_count": 220,
+        "round": 18,
+        "lr": 0.001,
+        "steps": 200,
+        "lambda_reg": 0.001
+      },
+      "metrics": {
+        "generalization": 0.7854,
+        "parsimony": 0.0,
+        "consistency": 1.0,
+        "kan_conformity": 1.0,
+        "iid_score": 0.9145,
+        "ood1_score": 0.7597,
+        "ood2_score": 0.615,
+        "ast_nodes": 126
+      },
+      "advice": [
+        "loss partially reduced (50% of initial: 0.0628\u21920.0317) \u2014 increase steps to 500+",
+        "PARSIMONY=0 (126 nodes, cap=60, x2.1) \u2014 losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2)."
+      ]
+    }
+  },
+  "history_scores": [
+    0.5301,
+    0.6101,
+    0.5967,
+    0.4914,
+    0.4914,
+    0.4456,
+    0.5376,
+    0.5149,
+    0.6305,
+    0.5559,
+    0.502,
+    0.5678,
+    0.5986,
+    0.6221,
+    0.4781,
+    0.5001,
+    0.5903,
+    0.5619,
+    0.6305
+  ],
+  "global_advice": [
+    "VERY CLOSE: score=0.6305, need 0.0195 more to PASS. FREEZE datasets D \u2014 do NOT change their config. Focus ALL effort on C, A only."
+  ]
+}

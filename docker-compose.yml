@@ -1,0 +1,38 @@
+# ── All config lives in .env — this file never needs to change ───────────────
+
+services:
+
+  rl-env:
+    build: .
+    image: kan-rl-env:latest
+    container_name: kan-rl-env
+    env_file: .env          # ← single source of truth
+    volumes:
+      - ./solution:/app/solution
+      - ./data:/app/data
+      - ./agent:/app/agent        # ← ajout
+      - ./judge:/app/judge        # ← ajout
+      - ./env_api:/app/env_api 
+      - ./datasets:/app/datasets
+    command: bash run.sh full
+
+  judge:
+    build: .
+    image: kan-rl-env:latest
+    container_name: kan-rl-judge
+    env_file: .env
+    profiles: ["tools"]   # only starts with: docker compose --profile tools up judge
+    volumes:
+      - ./solution:/app/solution
+      - ./data:/app/data
+    command: bash run.sh judge-only
+
+  datagen:
+    build: .
+    image: kan-rl-env:latest
+    container_name: kan-rl-datagen
+    env_file: .env
+    profiles: ["tools"]   # only starts with: docker compose --profile tools up datagen
+    volumes:
+      - ./data:/app/data
+    command: python3 datasets/generate.py

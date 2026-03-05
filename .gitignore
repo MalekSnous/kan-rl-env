@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+solution/models/
+solution/judge_result.json
+solution/agent_log.json
+data/
+judge/ground_truth.json
+/tmp/
+*.egg-info/
+.DS_Store
+.dockerenv

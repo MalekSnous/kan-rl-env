@@ -1,0 +1,13 @@
+# Never bake a pre-existing solution into the image
+# The agent must write this file from scratch
+solution/discover.py
+solution/models/
+solution/judge_result.json
+solution/agent_log.json
+
+# Misc
+.env
+.git
+__pycache__
+*.pyc
+*.DS_Store
