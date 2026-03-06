@@ -1,0 +1,581 @@
+{
+  "model": "gpt-oss-120b",
+  "saved_at": "2026-03-06T12:40:55.720578",
+  "n_rounds": 11,
+  "best_score": 0.6527,
+  "passed": true,
+  "rounds": [
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5751,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6574,
+          "ast_nodes": 81,
+          "iid_score": 0.9025,
+          "ood1_score": 0.6689,
+          "ood2_score": 0.6692,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.6024,
+          "ast_nodes": 93,
+          "iid_score": 0.8113,
+          "ood1_score": 0.6205,
+          "ood2_score": 0.5161,
+          "gen": 0.671,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.5716,
+          "ast_nodes": 77,
+          "iid_score": 0.8073,
+          "ood1_score": 0.6213,
+          "ood2_score": 0.0,
+          "gen": 0.54,
+          "parsimony": 0.237,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.4689,
+          "ast_nodes": 106,
+          "iid_score": 0.5877,
+          "ood1_score": 0.3506,
+          "ood2_score": 0.3617,
+          "gen": 0.448,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5751,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6574,
+          "ast_nodes": 81,
+          "iid_score": 0.9025,
+          "ood1_score": 0.6689,
+          "ood2_score": 0.6692,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.6024,
+          "ast_nodes": 93,
+          "iid_score": 0.8113,
+          "ood1_score": 0.6205,
+          "ood2_score": 0.5161,
+          "gen": 0.671,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.5716,
+          "ast_nodes": 77,
+          "iid_score": 0.8073,
+          "ood1_score": 0.6213,
+          "ood2_score": 0.0,
+          "gen": 0.54,
+          "parsimony": 0.237,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.4689,
+          "ast_nodes": 106,
+          "iid_score": 0.5877,
+          "ood1_score": 0.3506,
+          "ood2_score": 0.3617,
+          "gen": 0.448,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5751,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6574,
+          "ast_nodes": 81,
+          "iid_score": 0.9025,
+          "ood1_score": 0.6689,
+          "ood2_score": 0.6692,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.6024,
+          "ast_nodes": 93,
+          "iid_score": 0.8113,
+          "ood1_score": 0.6205,
+          "ood2_score": 0.5161,
+          "gen": 0.671,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.5716,
+          "ast_nodes": 77,
+          "iid_score": 0.8073,
+          "ood1_score": 0.6213,
+          "ood2_score": 0.0,
+          "gen": 0.54,
+          "parsimony": 0.237,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.4689,
+          "ast_nodes": 106,
+          "iid_score": 0.5877,
+          "ood1_score": 0.3506,
+          "ood2_score": 0.3617,
+          "gen": 0.448,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5591,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6574,
+          "ast_nodes": 81,
+          "iid_score": 0.9025,
+          "ood1_score": 0.6689,
+          "ood2_score": 0.6692,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.5765,
+          "ast_nodes": 81,
+          "iid_score": 0.7802,
+          "ood1_score": 0.5464,
+          "ood2_score": 0.497,
+          "gen": 0.628,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.5652,
+          "ast_nodes": 80,
+          "iid_score": 0.8068,
+          "ood1_score": 0.6287,
+          "ood2_score": 0.0,
+          "gen": 0.543,
+          "parsimony": 0.198,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.4372,
+          "ast_nodes": 99,
+          "iid_score": 0.6152,
+          "ood1_score": 0.3806,
+          "ood2_score": 0.0639,
+          "gen": 0.395,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5894,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6574,
+          "ast_nodes": 81,
+          "iid_score": 0.9025,
+          "ood1_score": 0.6689,
+          "ood2_score": 0.6692,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.5765,
+          "ast_nodes": 81,
+          "iid_score": 0.7802,
+          "ood1_score": 0.5464,
+          "ood2_score": 0.497,
+          "gen": 0.628,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.5511,
+          "ast_nodes": 34,
+          "iid_score": 0.5759,
+          "ood1_score": 0.5066,
+          "ood2_score": 0.0,
+          "gen": 0.408,
+          "parsimony": 0.533,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.5725,
+          "ast_nodes": 64,
+          "iid_score": 0.6421,
+          "ood1_score": 0.5388,
+          "ood2_score": 0.275,
+          "gen": 0.514,
+          "parsimony": 0.32,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5985,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6572,
+          "ast_nodes": 81,
+          "iid_score": 0.9022,
+          "ood1_score": 0.6688,
+          "ood2_score": 0.6684,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.6029,
+          "ast_nodes": 93,
+          "iid_score": 0.8138,
+          "ood1_score": 0.6255,
+          "ood2_score": 0.5085,
+          "gen": 0.672,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.664,
+          "ast_nodes": 64,
+          "iid_score": 0.8692,
+          "ood1_score": 0.7831,
+          "ood2_score": 0.1798,
+          "gen": 0.667,
+          "parsimony": 0.32,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.4698,
+          "ast_nodes": 101,
+          "iid_score": 0.61,
+          "ood1_score": 0.367,
+          "ood2_score": 0.3087,
+          "gen": 0.45,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5989,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6572,
+          "ast_nodes": 81,
+          "iid_score": 0.9022,
+          "ood1_score": 0.6688,
+          "ood2_score": 0.6684,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.5368,
+          "ast_nodes": 76,
+          "iid_score": 0.7575,
+          "ood1_score": 0.566,
+          "ood2_score": 0.0,
+          "gen": 0.501,
+          "parsimony": 0.181,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.7366,
+          "ast_nodes": 81,
+          "iid_score": 0.9128,
+          "ood1_score": 0.8635,
+          "ood2_score": 0.9079,
+          "gen": 0.894,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.465,
+          "ast_nodes": 78,
+          "iid_score": 0.6476,
+          "ood1_score": 0.3546,
+          "ood2_score": 0.0,
+          "gen": 0.383,
+          "parsimony": 0.176,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.5989,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6572,
+          "ast_nodes": 81,
+          "iid_score": 0.9022,
+          "ood1_score": 0.6688,
+          "ood2_score": 0.6684,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.5368,
+          "ast_nodes": 76,
+          "iid_score": 0.7575,
+          "ood1_score": 0.566,
+          "ood2_score": 0.0,
+          "gen": 0.501,
+          "parsimony": 0.181,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.7366,
+          "ast_nodes": 81,
+          "iid_score": 0.9128,
+          "ood1_score": 0.8635,
+          "ood2_score": 0.9079,
+          "gen": 0.894,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.465,
+          "ast_nodes": 78,
+          "iid_score": 0.6476,
+          "ood1_score": 0.3546,
+          "ood2_score": 0.0,
+          "gen": 0.383,
+          "parsimony": 0.176,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.6234,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6572,
+          "ast_nodes": 81,
+          "iid_score": 0.9022,
+          "ood1_score": 0.6688,
+          "ood2_score": 0.6684,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.2205,
+          "ast_nodes": 82,
+          "iid_score": 0.0586,
+          "ood1_score": 0.0306,
+          "ood2_score": 0.0,
+          "gen": 0.034,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.7723,
+          "ast_nodes": 78,
+          "iid_score": 0.9099,
+          "ood1_score": 0.8588,
+          "ood2_score": 0.7905,
+          "gen": 0.862,
+          "parsimony": 0.275,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.8436,
+          "ast_nodes": 60,
+          "iid_score": 0.9649,
+          "ood1_score": 0.9257,
+          "ood2_score": 0.9551,
+          "gen": 0.949,
+          "parsimony": 0.372,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.61,
+      "passed": false,
+      "datasets": {
+        "A": {
+          "score": 0.6572,
+          "ast_nodes": 81,
+          "iid_score": 0.9022,
+          "ood1_score": 0.6688,
+          "ood2_score": 0.6684,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.5765,
+          "ast_nodes": 81,
+          "iid_score": 0.7825,
+          "ood1_score": 0.5487,
+          "ood2_score": 0.49,
+          "gen": 0.628,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.7366,
+          "ast_nodes": 81,
+          "iid_score": 0.9128,
+          "ood1_score": 0.8635,
+          "ood2_score": 0.9079,
+          "gen": 0.894,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.4698,
+          "ast_nodes": 101,
+          "iid_score": 0.61,
+          "ood1_score": 0.367,
+          "ood2_score": 0.3087,
+          "gen": 0.45,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    },
+    {
+      "round": 1,
+      "model": "GPT-OSS 120B",
+      "final_score": 0.6527,
+      "passed": true,
+      "datasets": {
+        "A": {
+          "score": 0.6572,
+          "ast_nodes": 81,
+          "iid_score": 0.9022,
+          "ood1_score": 0.6688,
+          "ood2_score": 0.6684,
+          "gen": 0.762,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "B": {
+          "score": 0.5712,
+          "ast_nodes": 98,
+          "iid_score": 0.7666,
+          "ood1_score": 0.5427,
+          "ood2_score": 0.4881,
+          "gen": 0.619,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "C": {
+          "score": 0.7366,
+          "ast_nodes": 81,
+          "iid_score": 0.9128,
+          "ood1_score": 0.8635,
+          "ood2_score": 0.9079,
+          "gen": 0.894,
+          "parsimony": 0.0,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        },
+        "D": {
+          "score": 0.6456,
+          "ast_nodes": 43,
+          "iid_score": 0.8237,
+          "ood1_score": 0.6657,
+          "ood2_score": 0.1093,
+          "gen": 0.59,
+          "parsimony": 0.458,
+          "consistency": 1.0,
+          "kan_conf": 1.0
+        }
+      }
+    }
+  ]
+}

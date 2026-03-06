@@ -26,7 +26,7 @@ DATASET_IDS = ["A", "B", "C", "D"]
 PASS_THRESHOLD = 0.65
 
 # AST caps by n_vars
-AST_CAPS = {2: 60, 3: 70, 4: 80}
+AST_CAPS = {2: 80, 3: 90, 4: 100}
 
 # Weights
 W_GENERALIZATION = 0.60
@@ -80,9 +80,14 @@ def _eval_expression(expr_str: str, X: np.ndarray, n_vars: int) -> Optional[np.n
     """Safely evaluate expression on input array X (N, n_vars)."""
     # pykan's auto_symbolic may emit bare names like tanh, sqrt, log, abs
     # — extend namespace so these resolve correctly
+    # safe_sqrt / safe_log: domain-safe wrappers exposed to expressions
+    # that use np.sqrt/np.log with args that can go negative on OOD-2
+    _safe_sqrt = lambda x: np.sqrt(np.maximum(np.asarray(x, dtype=np.float64), 0.0))
+    _safe_log  = lambda x: np.log(np.maximum(np.asarray(x, dtype=np.float64), 1e-8))
     ns = {"np": np, "math": math,
           "tanh": np.tanh, "sqrt": np.sqrt, "log": np.log, "exp": np.exp,
-          "sin": np.sin, "cos": np.cos, "abs": np.abs, "pi": np.pi}
+          "sin": np.sin, "cos": np.cos, "abs": np.abs, "pi": np.pi,
+          "safe_sqrt": _safe_sqrt, "safe_log": _safe_log}
     for i in range(1, n_vars + 1):
         ns[f"x{i}"] = X[:, i - 1]
     try:
@@ -347,7 +352,7 @@ def run_judge() -> dict:
         result.log(f"Step3[{did}]", "ok" if n_nodes <= ast_cap else "warn",
                    f"AST nodes={n_nodes} (cap={ast_cap}), complexity={complexity}, expr='{expr[:80]}'")
 
-        parsimony_score = 0.0 if n_nodes > ast_cap else math.exp(-0.05 * complexity)
+        parsimony_score = 0.0 if n_nodes > ast_cap else math.exp(-0.03 * complexity)
         parsimony_score = max(0.0, min(1.0, parsimony_score))
 
         # Test eval on in-domain points

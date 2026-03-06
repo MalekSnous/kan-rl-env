@@ -11,9 +11,18 @@ run:
 	docker compose --env-file .env up --force-recreate rl-env
 
 # Restart without rebuild — uses mounted volumes, no reinstall
+# restart:
+# 	docker compose --env-file .env down --remove-orphans 2>/dev/null || true
+# 	docker compose --env-file .env up --force-recreate rl-env
+
 restart:
+	mkdir -p logs
 	docker compose --env-file .env down --remove-orphans 2>/dev/null || true
-	docker compose --env-file .env up --force-recreate rl-env
+	docker compose --env-file .env up --force-recreate rl-env | tee logs/run_$(MODEL)_$$(date +%Y%m%d_%H%M%S).txt
+	LOGFILE=$$(ls -t logs/run_$(MODEL)_*.txt | head -1) && python log_results.py --model "$(MODEL)" --logfile $$LOGFILE
+
+plot:
+	python log_results.py --plot --summary
 
 # Build without cache
 build:

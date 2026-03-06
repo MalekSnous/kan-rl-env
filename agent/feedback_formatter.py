@@ -191,7 +191,21 @@ def _advise(did: str, ds: dict, trace: dict, history: list) -> list[str]:
 
     if ood2 < 0.10:
         # Critically low OOD2 — diagnose WHY
-        if overfit_gap > 0.5:
+        # Check for nested sqrt(f(x)) pattern that diverges on OOD-2
+        has_nested_sqrt = (
+            "sqrt" in expression and
+            any(f"sqrt({f}" in expression for f in ["np.sin", "np.exp", "sin(", "exp(", "-", "1 -"])
+        )
+        if has_nested_sqrt:
+            advice.append(
+                "OOD2 critically low — expression contains sqrt(f(x)) where f(x) "
+                "can go negative outside training domain → NaN on OOD-2. "
+                "CRITICAL FIX: use safe_sqrt instead of np.sqrt in discover_law(). "
+                "Import: from env_api.kan_env import safe_sqrt. "
+                "Also: retrain with lib=['x','x^2','sin','exp'] (remove sqrt from lib) "
+                "to prevent the same pattern re-emerging."
+            )
+        elif overfit_gap > 0.5:
             # Clear overfit — more regularisation needed
             advice.append(
                 "OOD2 critically low (expression does NOT extrapolate). "

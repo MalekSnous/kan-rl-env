@@ -1,0 +1,1513 @@
+Attaching to kan-rl-env
+kan-rl-env  | ============================================================
+kan-rl-env  |   KAN Symbolic Regression RL Environment
+kan-rl-env  |   Mode: full
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | [1/3] Generating datasets...
+kan-rl-env  | [A] Saved 150 samples → data/train_A.csv  (k=2.4349)
+kan-rl-env  | [B] Saved 150 samples → data/train_B.csv  (k=1.6761)
+kan-rl-env  | [C] Saved 150 samples → data/train_C.csv  (k=3.6301)
+kan-rl-env  | [D] Saved 150 samples → data/train_D.csv  (k=1.2834)
+kan-rl-env  | 
+kan-rl-env  | Wrote domains.json
+kan-rl-env  | Wrote ground_truth.json (judge only)
+kan-rl-env  | 
+kan-rl-env  | Ground truth constants (judge only):
+kan-rl-env  |   Dataset A: k=2.4349  — Product law (physics: e.g. force = k * m * a)
+kan-rl-env  |   Dataset B: k=1.6761  — Sinusoidal + quadratic (signal processing)
+kan-rl-env  |   Dataset C: k=3.6301  — Michaelis-Menten (biology: enzyme kinetics)
+kan-rl-env  |   Dataset D: k=1.2834  — Exponential decay (physics/chemistry)
+kan-rl-env  | Done.
+kan-rl-env  | 
+kan-rl-env  |   [init] Cleaning previous run state...
+kan-rl-env  |   [init] Clean. Starting fresh RL loop.
+kan-rl-env  | 
+kan-rl-env  | [2/3] RL Loop — 20 rounds × 1 agent iterations
+kan-rl-env  | ────────────────────────────────────────────────────────────
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 1   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=1 | max_iter=1
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 1732 chars
+kan-rl-env  | Exec (1718 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import train_kan, extract_symbolic, save_model, predict_from_expr, safe_refine, safe_sqrt, safe_log
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | expressions = {}
+kan-rl-env  | for did in ['A','B','C','D']:
+kan-rl-env  |     model = KAN(width=[2,3,1], grid=3, k=3)
+kan-rl-env  |     trained_model, _ = train_kan(did, model, {'lr':0.01,'steps':400,'lambda_reg':0.001})
+kan-rl-env  |     trained_model = safe_refine(trained_model, 5)
+kan-rl-env  |     trained_model, _ = train_kan(did, trained_model, {'lr':0.001,'steps':200,'lambda_reg':0.0001})
+kan-rl-env  |     try:
+kan-rl-env  |         trained_model.auto_symbolic(lib=['x','x^2','sin','exp','sqrt'])
+kan-rl-env  |     except Exception as e:
+kan-rl-env  |         print(f'auto_symbolic {did}: {e}')
+kan-rl-env  |     save_model(trained_model, did)
+kan-rl-env  | 
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  | ) since already symbolic
+kan-rl-env  | skipping (0,1,2) since already symbolic
+kan-rl-env  | skipping (1,0,0) since already symbolic
+kan-rl-env  | skipping (1,1,0) since already symbolic
+kan-rl-env  | skipping (1,2,0) since already symbolic
+kan-rl-env  | [extract_symbolic] → '-0.06009*x2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2 - 7.764) + 0.4464)**2 + 2.234*np.exp(0.2177*x1) - 0.2627*np.sin(1.359*x1 + 3.249) - 1.96'
+kan-rl-env  | C: -0.06009*x2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2 - 7.764) + 0.4464)**2 + 2.234*np.exp(0.2177*x1) - 0.2627*np.sin(1.359*x1 + 3.249) - 1.96
+kan-rl-env  | [env_api] D | steps=400 | loss 2.6954→0.0358 | hash=a4fd4dcbc7c4e3c7 | 4.3s
+kan-rl-env  | [env_api] refine(5) OK — grid updated
+kan-rl-env  | [env_api] D | steps=200 | loss 0.0675→0.0124 | hash=f3c3c73e7922078d | 2.2s
+kan-rl-env  | fixing (0,0,0) wi
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2233/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0336/0.4731, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0119/0.0378, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0124/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x1 + 0.1982*(0.6034 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0759, MedAPE=0.0234, score=0.9025
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2976, MedAPE=0.0477, score=0.6689
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2904, MedAPE=0.0569, score=0.6692
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6574
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=93 (cap=80), complexity=58, expr='0.1711*x1 + 0.002303*np.exp(2.807*x2) + 1.583*np.sin(0.7112*x1 - 0.3524*x2 + 7.7'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1464, MedAPE=0.0495, score=0.8113
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3156, MedAPE=0.0934, score=0.6205
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3581, MedAPE=0.1959, score=0.5161
+kan-rl-env  | ✅ [Score[B]] gen=0.671 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6024
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ✅ [Step3[C]] AST nodes=77 (cap=80), complexity=48, expr='-0.06009*x2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2 - 7.764) + 0.4464)**2 + 2.23'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.1708, MedAPE=0.0264, score=0.8073
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.3397, MedAPE=0.0590, score=0.6213
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=2.2803, MedAPE=0.1516, score=0.0000
+kan-rl-env  | ✅ [Score[C]] gen=0.540 | parsimony=0.237 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5716
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ⚠️ [Step3[D]] AST nodes=106 (cap=80), complexity=63, expr='0.1618*x1 + 3.861*np.exp(-0.6127*x1 + 0.1526*np.sin(1.04*x2 - 9.263)) + 0.804*np'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.3014, MedAPE=0.1587, score=0.5877
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4429, MedAPE=0.3706, score=0.3506
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.3495, MedAPE=0.4440, score=0.3617
+kan-rl-env  | ✅ [Score[D]] gen=0.448 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4689
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5751  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6574
+kan-rl-env  |   Dataset B: 0.6024
+kan-rl-env  |   Dataset C: 0.5716
+kan-rl-env  |   Dataset D: 0.4689
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 1 score: 0.5751  (threshold: 0.65)
+kan-rl-env  |   ✨ New best: 0.5751 — saved to solution/discover_best.py
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 2...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 1 — Score: 0.5751 (FAIL ❌)
+kan-rl-env  | Priority order: D > C > B > A
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.4689 (+0.469)  — PARSIMONY=0 (106 nodes, cap=80, x1.3) — losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2).
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.5716 (+0.572)  — OOD2 critically low (expression does NOT extrapolate). Cause: overfit. Fix: increase lambda_reg to 0.01-0.05, reduce steps to 200-300, use [2,2,1] architecture.
+kan-rl-env  |   🟢 ACCEPTABLE B: 0.6024 (+0.602)  — PARSIMONY=0 (93 nodes, cap=80, x1.2) — losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2).
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6574 (+0.657)  — loss still high (0.2233) — try refine(5) then retrain 300 steps at lr=0.005
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 2   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=2 | max_iter=1
+kan-rl-env  | prev=0.5751 history=[0.5751]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 1429 chars
+kan-rl-env  | Truncated (ends="lic(lib=cfg['lib'])\n    except Exception"). Asking for shorter.
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2233/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0336/0.4731, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0119/0.0378, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0124/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x1 + 0.1982*(0.6034 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0759, MedAPE=0.0234, score=0.9025
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2976, MedAPE=0.0477, score=0.6689
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2904, MedAPE=0.0569, score=0.6692
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6574
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=93 (cap=80), complexity=58, expr='0.1711*x1 + 0.002303*np.exp(2.807*x2) + 1.583*np.sin(0.7112*x1 - 0.3524*x2 + 7.7'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1464, MedAPE=0.0495, score=0.8113
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3156, MedAPE=0.0934, score=0.6205
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3581, MedAPE=0.1959, score=0.5161
+kan-rl-env  | ✅ [Score[B]] gen=0.671 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6024
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ✅ [Step3[C]] AST nodes=77 (cap=80), complexity=48, expr='-0.06009*x2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2 - 7.764) + 0.4464)**2 + 2.23'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.1708, MedAPE=0.0264, score=0.8073
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.3397, MedAPE=0.0590, score=0.6213
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=2.2803, MedAPE=0.1516, score=0.0000
+kan-rl-env  | ✅ [Score[C]] gen=0.540 | parsimony=0.237 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5716
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ⚠️ [Step3[D]] AST nodes=106 (cap=80), complexity=63, expr='0.1618*x1 + 3.861*np.exp(-0.6127*x1 + 0.1526*np.sin(1.04*x2 - 9.263)) + 0.804*np'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.3014, MedAPE=0.1587, score=0.5877
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4429, MedAPE=0.3706, score=0.3506
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.3495, MedAPE=0.4440, score=0.3617
+kan-rl-env  | ✅ [Score[D]] gen=0.448 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4689
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5751  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6574
+kan-rl-env  |   Dataset B: 0.6024
+kan-rl-env  |   Dataset C: 0.5716
+kan-rl-env  |   Dataset D: 0.4689
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 2 score: 0.5751  (threshold: 0.65)
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 3...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 2 — Score: 0.5751 (FAIL ❌)
+kan-rl-env  | Priority order: D > C > B > A
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.4689  [best: [2,3,1] r1 score=0.4689 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.5716  [best: [2,3,1] r1 score=0.5716 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE B: 0.6024  [best: [2,3,1] r1 score=0.6024 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6574  [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 3   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=3 | max_iter=1
+kan-rl-env  | prev=0.5751 history=[0.5751, 0.5751]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 2539 chars
+kan-rl-env  | Exec (2529 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import (
+kan-rl-env  |     train_kan, extract_symbolic, save_model,
+kan-rl-env  |     predict_from_expr, safe_refine
+kan-rl-env  | )
+kan-rl-env  | 
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | expressions = {}
+kan-rl-env  | 
+kan-rl-env  | # per‑dataset hyper‑parameters
+kan-rl-env  | configs = {
+kan-rl-env  |     'A': {
+kan-rl-env  |         'width': [2, 3, 1],
+kan-rl-env  |         'init_steps': 400, 'refine_steps': 300,
+kan-rl-env  |         'lambda_reg': 0.001,
+kan-rl-env  |         'lib': ['x', 'x^2', 'sin', 'exp', 'sqrt']
+kan-rl-env  |     },
+kan-rl-env  |     'B': {
+kan-rl-env  |         'width': [2, 3, 1],
+kan-rl-env  |         'init_steps': 400, 'refine_steps': 200,
+kan-rl-env  |         'lambda_reg': 0.0015,
+kan-rl-env  |         'lib': ['x', 'x^2', 'sin']
+kan-rl-env  |     },
+kan-rl-env  |     'C': {
+kan-rl-env  |         'width': [2, 2, 1],
+kan-rl-env  |         'init_steps': 250, 'refine_steps': 250,
+kan-rl-env  |         'lambda_reg': 0.02,
+kan-rl-env  |         'lib': 
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=1
+kan-rl-env  | stderr:
+kan-rl-env  |   File "/tmp/agent_step.py", line 85
+kan-rl-env  |     with open('
+kan-rl-env  |               ^
+kan-rl-env  | SyntaxError: unterminated string literal (detected at line 85)
+kan-rl-env  | 
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2233/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0336/0.4731, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0119/0.0378, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0124/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x1 + 0.1982*(0.6034 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0759, MedAPE=0.0234, score=0.9025
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2976, MedAPE=0.0477, score=0.6689
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2904, MedAPE=0.0569, score=0.6692
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6574
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=93 (cap=80), complexity=58, expr='0.1711*x1 + 0.002303*np.exp(2.807*x2) + 1.583*np.sin(0.7112*x1 - 0.3524*x2 + 7.7'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1464, MedAPE=0.0495, score=0.8113
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3156, MedAPE=0.0934, score=0.6205
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3581, MedAPE=0.1959, score=0.5161
+kan-rl-env  | ✅ [Score[B]] gen=0.671 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6024
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ✅ [Step3[C]] AST nodes=77 (cap=80), complexity=48, expr='-0.06009*x2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2 - 7.764) + 0.4464)**2 + 2.23'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.1708, MedAPE=0.0264, score=0.8073
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.3397, MedAPE=0.0590, score=0.6213
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=2.2803, MedAPE=0.1516, score=0.0000
+kan-rl-env  | ✅ [Score[C]] gen=0.540 | parsimony=0.237 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5716
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ⚠️ [Step3[D]] AST nodes=106 (cap=80), complexity=63, expr='0.1618*x1 + 3.861*np.exp(-0.6127*x1 + 0.1526*np.sin(1.04*x2 - 9.263)) + 0.804*np'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.3014, MedAPE=0.1587, score=0.5877
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4429, MedAPE=0.3706, score=0.3506
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.3495, MedAPE=0.4440, score=0.3617
+kan-rl-env  | ✅ [Score[D]] gen=0.448 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4689
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5751  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6574
+kan-rl-env  |   Dataset B: 0.6024
+kan-rl-env  |   Dataset C: 0.5716
+kan-rl-env  |   Dataset D: 0.4689
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 3 score: 0.5751  (threshold: 0.65)
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 4...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 3 — Score: 0.5751 (FAIL ❌)
+kan-rl-env  | Priority order: D > C > B > A
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.4689  [best: [2,3,1] r1 score=0.4689 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.5716  [best: [2,3,1] r1 score=0.5716 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE B: 0.6024  [best: [2,3,1] r1 score=0.6024 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6574  [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 4   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=4 | max_iter=1
+kan-rl-env  | prev=0.5751 history=[0.5751, 0.5751, 0.5751]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 2066 chars
+kan-rl-env  | Exec (2052 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import (
+kan-rl-env  |     train_kan, extract_symbolic, save_model,
+kan-rl-env  |     predict_from_expr, safe_refine
+kan-rl-env  | )
+kan-rl-env  | 
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | expressions = {}
+kan-rl-env  | 
+kan-rl-env  | # Reduced library to improve parsimoniousness (2‑3 functions)
+kan-rl-env  | LIB = ['x', 'x^2', 'sin']
+kan-rl-env  | 
+kan-rl-env  | for did in ['A', 'B', 'C', 'D']:
+kan-rl-env  |     # Architecture stays [2,3,1] (except frozen A)
+kan-rl-env  |     model = KAN(width=[2, 3, 1], grid=3, k=3)
+kan-rl-env  | 
+kan-rl-env  |     # Phase 1: initial training on coarse grid
+kan-rl-env  |     trained_model, _ = train_kan(
+kan-rl-env  |         did,
+kan-rl-env  |         model,
+kan-rl-env  |         {'lr': 0.01, 'steps': 400, 'lambda_reg': 0.001}
+kan-rl-env  |     )
+kan-rl-env  | 
+kan-rl-env  |     # Phase 2: refine splines then fine‑tune
+kan-rl-env  |     trained_model = safe_refine(trained_model, 5)
+kan-rl-env  |     trained_model,
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  | dy symbolic
+kan-rl-env  | skipping (0,1,1) since already symbolic
+kan-rl-env  | skipping (0,1,2) since already symbolic
+kan-rl-env  | skipping (1,0,0) since already symbolic
+kan-rl-env  | skipping (1,1,0) since already symbolic
+kan-rl-env  | skipping (1,2,0) since already symbolic
+kan-rl-env  | [extract_symbolic] → '-0.06009*x2 + 0.6316*(-0.3515*x1 - 1)**2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2 - 7.764) + 0.4464)**2 - 0.2627*np.sin(1.359*x1 + 3.249) - 0.337'
+kan-rl-env  | C: -0.06009*x2 + 0.6316*(-0.3515*x1 - 1)**2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2 - 7.764) + 0.4464)**2 - 0.2627*np.sin(1.359*x1 + 3.249) - 0.337
+kan-rl-env  | [env_api] D | steps=400 | loss 2.6954→0.0358 | hash=a4fd4dcbc7c4e3c7 | 4.3s
+kan-rl-env  | [env_api] refine(5) OK — grid updated
+kan-rl-env  | [env_api] D | steps=200 | loss 0.0675→0.0124 | hash=f3c3c7
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2233/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0336/0.4731, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0119/0.0378, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0124/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x1 + 0.1982*(0.6034 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0759, MedAPE=0.0234, score=0.9025
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2976, MedAPE=0.0477, score=0.6689
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2904, MedAPE=0.0569, score=0.6692
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6574
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=81 (cap=80), complexity=55, expr='0.1711*x1 + 0.3356*x2 + 1.583*np.sin(0.7112*x1 - 0.3524*x2 + 7.715) + 25.13*np.s'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1713, MedAPE=0.0586, score=0.7802
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3805, MedAPE=0.1180, score=0.5464
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3672, MedAPE=0.2145, score=0.4970
+kan-rl-env  | ✅ [Score[B]] gen=0.628 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5765
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ✅ [Step3[C]] AST nodes=80 (cap=80), complexity=54, expr='-0.06009*x2 + 0.6316*(-0.3515*x1 - 1)**2 + 3.758*(-0.006441*x1 + np.sin(0.334*x2'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.1707, MedAPE=0.0271, score=0.8068
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.3322, MedAPE=0.0585, score=0.6287
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=2.0889, MedAPE=0.1484, score=0.0000
+kan-rl-env  | ✅ [Score[C]] gen=0.543 | parsimony=0.198 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5652
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ⚠️ [Step3[D]] AST nodes=99 (cap=80), complexity=64, expr='0.1618*x1 + 2.913*(-0.3433*x1 + 0.0855*np.sin(1.04*x2 - 9.263) + 1)**2 + 0.804*n'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.2928, MedAPE=0.1300, score=0.6152
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4570, MedAPE=0.2991, score=0.3806
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.6176, MedAPE=0.8329, score=0.0639
+kan-rl-env  | ✅ [Score[D]] gen=0.395 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4372
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5591  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6574
+kan-rl-env  |   Dataset B: 0.5765
+kan-rl-env  |   Dataset C: 0.5652
+kan-rl-env  |   Dataset D: 0.4372
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 4 score: 0.5591  (threshold: 0.65)
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 5...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 4 — Score: 0.5591 (FAIL ❌)
+kan-rl-env  | Priority order: D > C > B > A
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.4372 (-0.032) [best: [2,3,1] r1 score=0.4689 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.5652 (-0.006) [best: [2,3,1] r1 score=0.5716 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE B: 0.5765 (-0.026) [best: [2,3,1] r1 score=0.6024 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6574  [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 5   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=5 | max_iter=1
+kan-rl-env  | prev=0.5591 history=[0.5751, 0.5751, 0.5751, 0.5591]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 2796 chars
+kan-rl-env  | Exec (2782 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import (
+kan-rl-env  |     train_kan, extract_symbolic, save_model,
+kan-rl-env  |     predict_from_expr, safe_refine, safe_sqrt, safe_log
+kan-rl-env  | )
+kan-rl-env  | 
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | 
+kan-rl-env  | configs = {
+kan-rl-env  |     'A': {
+kan-rl-env  |         'width': [2, 3, 1],
+kan-rl-env  |         'steps1': 400, 'lr1': 0.01, 'lambda1': 0.001,
+kan-rl-env  |         'steps2': 200, 'lr2': 0.001, 'lambda2': 0.0001,
+kan-rl-env  |         'lib': ['x', 'x^2', 'sin', 'exp', 'sqrt']
+kan-rl-env  |     },
+kan-rl-env  |     'B': {
+kan-rl-env  |         'width': [2, 3, 1],
+kan-rl-env  |         'steps1': 400, 'lr1': 0.01, 'lambda1': 0.001,
+kan-rl-env  |         'steps2': 200, 'lr2': 0.001, 'lambda2': 0.0001,
+kan-rl-env  |         'lib': ['x', 'x^2', 'sin']                     # reduced lib for parsimony
+kan-rl-env  |     },
+kan-rl-env  |     'C': {
+kan-rl-env  |         'width': [2, 2, 1],
+kan-rl-env  |      
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  | oss 2.3341→0.0860 | hash=002c5dff343d17bf | 2.4s
+kan-rl-env  | [env_api] refine(5) OK — grid updated
+kan-rl-env  | [env_api] C | steps=150 | loss 0.5272→0.1945 | hash=8310c88b2fca128c | 1.5s
+kan-rl-env  | fixing (0,0,0) with x, r2=0.018497783690690994, c=1
+kan-rl-env  | fixing (0,0,1) with sin, r2=0.9994999766349792, c=2
+kan-rl-env  | fixing (0,1,0) with x, r2=0.9899709820747375, c=1
+kan-rl-env  | fixing (0,1,1) with x, r2=0.9529476761817932, c=1
+kan-rl-env  | fixing (1,0,0) with x, r2=0.9794772863388062, c=1
+kan-rl-env  | fixing (1,1,0) with x, r2=0.948867678642273, c=1
+kan-rl-env  | [env_api] Saved C → /app/solution/models/C_model.pt (grid=5)
+kan-rl-env  | skipping (0,0,0) since already symbolic
+kan-rl-env  | skipping (0,0,1) since already symbolic
+kan-rl-env  | skipping (0,1,0) since already symbolic
+kan-rl-env  | skipping (0,1,1) since already symbolic
+kan-rl-env  | skipping (1,0
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2233/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0336/0.4731, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.1945/0.5272, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=156
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.1375/0.7467, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=156
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.947*(0.5099*x1 + 0.3841*x2 - 1)**2 - 8.563*np.sin(0.3734*x1 + 0.1982*(0.6034 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0759, MedAPE=0.0234, score=0.9025
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2976, MedAPE=0.0477, score=0.6689
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2904, MedAPE=0.0569, score=0.6692
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6574
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=81 (cap=80), complexity=55, expr='0.1711*x1 + 0.3356*x2 + 1.583*np.sin(0.7112*x1 - 0.3524*x2 + 7.715) + 25.13*np.s'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1713, MedAPE=0.0586, score=0.7802
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3805, MedAPE=0.1180, score=0.5464
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3672, MedAPE=0.2145, score=0.4970
+kan-rl-env  | ✅ [Score[B]] gen=0.628 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5765
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ✅ [Step3[C]] AST nodes=34 (cap=80), complexity=21, expr='0.0006766*x1 - 0.2996*x2 - 0.6059*np.sin(1.096*x1 + 7.801) + 2.176'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.3811, MedAPE=0.0696, score=0.5759
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.4399, MedAPE=0.0955, score=0.5066
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=1.3380, MedAPE=0.1646, score=0.0000
+kan-rl-env  | ✅ [Score[C]] gen=0.408 | parsimony=0.533 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5511
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ✅ [Step3[D]] AST nodes=64 (cap=80), complexity=38, expr='-0.0053*x1 - 0.006635*x2 + 1.265*np.sin(1.156*np.sin(0.7818*x1 - 9.777) + 1.132 '
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.2924, MedAPE=0.0925, score=0.6421
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.3439, MedAPE=0.1788, score=0.5388
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.5587, MedAPE=0.3769, score=0.2750
+kan-rl-env  | ✅ [Score[D]] gen=0.514 | parsimony=0.320 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5725
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5894  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6574
+kan-rl-env  |   Dataset B: 0.5765
+kan-rl-env  |   Dataset C: 0.5511
+kan-rl-env  |   Dataset D: 0.5725
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 5 score: 0.5894  (threshold: 0.65)
+kan-rl-env  |   ✨ New best: 0.5894 — saved to solution/discover_best.py
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 6...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 5 — Score: 0.5894 (FAIL ❌)
+kan-rl-env  | Priority order: C > D > B > A
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.5511 (-0.021) [best: [2,3,1] r1 score=0.5716 | lr=0.001 steps=200 lambda=0.0001]  — loss still high (0.1945) — try refine(5) then retrain 300 steps at lr=0.005
+kan-rl-env  |   🟢 ACCEPTABLE D: 0.5725 (+0.104) [best: [2,3,1] r1 score=0.4689 | lr=0.001 steps=200 lambda=0.0001]  — good result — try smaller lib ['x','x^2','sin'] to reduce AST nodes further (64 → target <40)
+kan-rl-env  |   🟢 ACCEPTABLE B: 0.5765 (-0.026) [best: [2,3,1] r1 score=0.6024 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6574  [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 6   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=6 | max_iter=1
+kan-rl-env  | prev=0.5894 history=[0.5751, 0.5751, 0.5751, 0.5591, 0.5894]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 1978 chars
+kan-rl-env  | Exec (1964 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import train_kan, extract_symbolic, save_model, predict_from_expr, safe_refine
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | 
+kan-rl-env  | expressions = {}
+kan-rl-env  | # Dataset-specific widths
+kan-rl-env  | widths = {
+kan-rl-env  |     'A': [2,3,1],
+kan-rl-env  |     'B': [2,3,1],
+kan-rl-env  |     'C': [2,2,1],   # changed to reduce overfit & complexity
+kan-rl-env  |     'D': [2,3,1],
+kan-rl-env  | }
+kan-rl-env  | for did in ['A','B','C','D']:
+kan-rl-env  |     model = KAN(width=widths[did], grid=3, k=3)
+kan-rl-env  |     # Phase 1: initial training
+kan-rl-env  |     trained_model, _ = train_kan(did, model, {'lr':0.01,'steps':400,'lambda_reg':0.001})
+kan-rl-env  |     # Phase 2: refine splines then fine‑tune
+kan-rl-env  |     trained_model = safe_refine(trained_model, 5)
+kan-rl-env  |     trained_model, _ = train_kan(did, trained_model, {'lr':0.001,'step
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  | id=5)
+kan-rl-env  | skipping (0,0,0) since already symbolic
+kan-rl-env  | skipping (0,0,1) since already symbolic
+kan-rl-env  | skipping (0,1,0) since already symbolic
+kan-rl-env  | skipping (0,1,1) since already symbolic
+kan-rl-env  | skipping (1,0,0) since already symbolic
+kan-rl-env  | skipping (1,1,0) since already symbolic
+kan-rl-env  | [extract_symbolic] → '-0.7488*np.exp(0.01423*x2 + 0.7348*np.sin(1.009*x1 + 1.554)) - 1.039*np.sin(-0.0787*x1 + 0.6112*x2 + 5.861) + 3.051'
+kan-rl-env  | C: -0.7488*np.exp(0.01423*x2 + 0.7348*np.sin(1.009*x1 + 1.554)) - 1.039*np.sin(-0.0787*x1 + 0.6112*x2 + 5.861) + 3.051
+kan-rl-env  | [env_api] D | steps=400 | loss 2.6954→0.0358 | hash=a4fd4dcbc7c4e3c7 | 4.4s
+kan-rl-env  | [env_api] refine(5) OK — grid updated
+kan-rl-env  | [env_api] D | steps=200 | loss 0.0675→0.0134 | hash=e937d07353f62f2c | 2.2s
+kan-rl-env  | fixing
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2232/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0338/0.4731, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0236/0.0489, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=156
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0134/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x1 + 0.1978*(0.6033 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0762, MedAPE=0.0234, score=0.9022
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2974, MedAPE=0.0481, score=0.6688
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2909, MedAPE=0.0574, score=0.6684
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6572
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=93 (cap=80), complexity=58, expr='0.1684*x1 + 0.002227*np.exp(2.822*x2) + 1.503*np.sin(0.7256*x1 - 0.3514*x2 + 7.6'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1445, MedAPE=0.0487, score=0.8138
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3122, MedAPE=0.0906, score=0.6255
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3585, MedAPE=0.2072, score=0.5085
+kan-rl-env  | ✅ [Score[B]] gen=0.672 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6029
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ✅ [Step3[C]] AST nodes=64 (cap=80), complexity=38, expr='-0.7488*np.exp(0.01423*x2 + 0.7348*np.sin(1.009*x1 + 1.554)) - 1.039*np.sin(-0.0'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.1132, MedAPE=0.0198, score=0.8692
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.1908, MedAPE=0.0323, score=0.7831
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=0.8097, MedAPE=0.0547, score=0.1798
+kan-rl-env  | ✅ [Score[C]] gen=0.667 | parsimony=0.320 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6640
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ⚠️ [Step3[D]] AST nodes=101 (cap=80), complexity=62, expr='0.1707*x1 + 3.799*np.exp(-0.6654*x1 + 0.1963*np.sin(0.9664*x2 - 9.142)) + 1.15*n'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.2880, MedAPE=0.1433, score=0.6100
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4431, MedAPE=0.3410, score=0.3670
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.4015, MedAPE=0.4842, score=0.3087
+kan-rl-env  | ✅ [Score[D]] gen=0.450 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4698
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5985  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6572
+kan-rl-env  |   Dataset B: 0.6029
+kan-rl-env  |   Dataset C: 0.6640
+kan-rl-env  |   Dataset D: 0.4698
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 6 score: 0.5985  (threshold: 0.65)
+kan-rl-env  |   ✨ New best: 0.5985 — saved to solution/discover_best.py
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 7...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 6 — Score: 0.5985 (FAIL ❌)
+kan-rl-env  | Priority order: D > B > A > C
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.4698 (-0.103) [best: [2,2,1] r5 score=0.5725 | lr=0.001 steps=150 lambda=0.02]  — PARSIMONY=0 (101 nodes, cap=80, x1.3) — losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2).
+kan-rl-env  |   🟢 ACCEPTABLE B: 0.6029 (+0.001) [best: [2,3,1] r1 score=0.6024 | lr=0.001 steps=200 lambda=0.0001]  — PARSIMONY=0 (93 nodes, cap=80, x1.2) — losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2).
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6572 (-0.000) [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — loss still high (0.2232) — try refine(5) then retrain 300 steps at lr=0.005
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.664 (+0.092) [best: [2,3,1] r1 score=0.5716 | lr=0.001 steps=200 lambda=0.0001]  — OOD2 low (ood2=0.18, iid-ood2=0.69). Increase lambda_reg to 0.005-0.01 to force simpler expression.
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 7   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=7 | max_iter=1
+kan-rl-env  | prev=0.5985 history=[0.5751, 0.5751, 0.5751, 0.5591, 0.5894, 0.5985]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 2179 chars
+kan-rl-env  | Exec (2165 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import train_kan, extract_symbolic, save_model, predict_from_expr, safe_refine
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | 
+kan-rl-env  | configs = {
+kan-rl-env  |     'A': {'width':[2,3,1], 'steps':400, 'lr':0.01,  'lambda_reg':0.001,  'lib':['x','x^2','sin','exp','sqrt']},
+kan-rl-env  |     'B': {'width':[2,3,1], 'steps':400, 'lr':0.01,  'lambda_reg':0.0015, 'lib':['x','x^2']},
+kan-rl-env  |     'C': {'width':[2,3,1], 'steps':400, 'lr':0.01,  'lambda_reg':0.001,  'lib':['x','x^2','sin','exp','sqrt']},
+kan-rl-env  |     'D': {'width':[2,3,1], 'steps':400, 'lr':0.01,  'lambda_reg':0.001,  'lib':['x','x^2']},
+kan-rl-env  | }
+kan-rl-env  | 
+kan-rl-env  | expressions = {}
+kan-rl-env  | for did in ['A','B','C','D']:
+kan-rl-env  |     cfg = configs[did]
+kan-rl-env  |     model = KAN(width=cfg['width'], grid
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  | ping (0,0,2) since already symbolic
+kan-rl-env  | skipping (0,1,0) since already symbolic
+kan-rl-env  | skipping (0,1,1) since already symbolic
+kan-rl-env  | skipping (0,1,2) since already symbolic
+kan-rl-env  | skipping (1,0,0) since already symbolic
+kan-rl-env  | skipping (1,1,0) since already symbolic
+kan-rl-env  | skipping (1,2,0) since already symbolic
+kan-rl-env  | [extract_symbolic] → '-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2)) - 0.01786*np.exp(0.004727*x2 + 4.769*np.sqrt(1 - 0.2467*x1)) + 1.836'
+kan-rl-env  | C: -0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2)) - 0.01786*np.exp(0.004727*x2 + 4.769*np.sqrt(1 - 0.2467*x1)) + 1.836
+kan-rl-env  | [env_api] D | steps=400 | loss 2.6954→0.0358 | hash=a4fd4dcbc7c4e3c7 | 4.3s
+kan-rl-env  | [env_api] refine(5
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2232/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0321/0.4772, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0179/0.0378, neg_slope=0.73
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0134/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x1 + 0.1978*(0.6033 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0762, MedAPE=0.0234, score=0.9022
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2974, MedAPE=0.0481, score=0.6688
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2909, MedAPE=0.0574, score=0.6684
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6572
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ✅ [Step3[B]] AST nodes=76 (cap=80), complexity=57, expr='0.1489*x1 + 0.3135*x2 - 0.2844*(-x1 + 0.479*x2 + 0.2003)**2 - 2.112*(0.454*(0.52'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1875, MedAPE=0.0677, score=0.7575
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3459, MedAPE=0.1347, score=0.5660
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=1.2823, MedAPE=0.2475, score=0.0000
+kan-rl-env  | ✅ [Score[B]] gen=0.501 | parsimony=0.181 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5368
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ⚠️ [Step3[C]] AST nodes=81 (cap=80), complexity=46, expr='-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.0793, MedAPE=0.0086, score=0.9128
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.1229, MedAPE=0.0155, score=0.8635
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=0.0820, MedAPE=0.0110, score=0.9079
+kan-rl-env  | ✅ [Score[C]] gen=0.894 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.7366
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ✅ [Step3[D]] AST nodes=78 (cap=80), complexity=58, expr='0.1707*x1 + 0.09598*x2 + 0.162*(0.9856 - x1)**2 + 0.0655*(-x2 - 0.3106)**2 + 2.3'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.2636, MedAPE=0.1207, score=0.6476
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4810, MedAPE=0.3167, score=0.3546
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=1.3966, MedAPE=0.6933, score=0.0000
+kan-rl-env  | ✅ [Score[D]] gen=0.383 | parsimony=0.176 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4650
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5989  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6572
+kan-rl-env  |   Dataset B: 0.5368
+kan-rl-env  |   Dataset C: 0.7366
+kan-rl-env  |   Dataset D: 0.4650
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 7 score: 0.5989  (threshold: 0.65)
+kan-rl-env  |   ✨ New best: 0.5989 — saved to solution/discover_best.py
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 8...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 7 — Score: 0.5989 (FAIL ❌)
+kan-rl-env  | Priority order: D > B > A > C
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.465 (-0.107) [best: [2,2,1] r5 score=0.5725 | lr=0.001 steps=150 lambda=0.02]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT B: 0.5368 (-0.066) [best: [2,3,1] r6 score=0.6029 | lr=0.001 steps=200 lambda=0.001]  — OOD2 critically low (expression does NOT extrapolate). Cause: overfit. Fix: increase lambda_reg to 0.01-0.05, reduce steps to 200-300, use [2,2,1] architecture.
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6572 (-0.000) [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.7366 (+0.073) [best: [2,2,1] r6 score=0.664 | lr=0.001 steps=200 lambda=0.001]  — PARSIMONY=0 (81 nodes, cap=80, x1.0) — losing 0.20 score weight. Reduce lib to 2-3 functions based on what's in the current expression (keep only function families already present with high r2).
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 8   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=8 | max_iter=1
+kan-rl-env  | prev=0.5989 history=[0.5751, 0.5751, 0.5751, 0.5591, 0.5894, 0.5985, 0.5989]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 1266 chars
+kan-rl-env  | Truncated (ends="s():\n    model = KAN(width=cfg['width'],"). Asking for shorter.
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2232/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0321/0.4772, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0179/0.0378, neg_slope=0.73
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0134/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x1 + 0.1978*(0.6033 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0762, MedAPE=0.0234, score=0.9022
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2974, MedAPE=0.0481, score=0.6688
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2909, MedAPE=0.0574, score=0.6684
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6572
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ✅ [Step3[B]] AST nodes=76 (cap=80), complexity=57, expr='0.1489*x1 + 0.3135*x2 - 0.2844*(-x1 + 0.479*x2 + 0.2003)**2 - 2.112*(0.454*(0.52'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1875, MedAPE=0.0677, score=0.7575
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3459, MedAPE=0.1347, score=0.5660
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=1.2823, MedAPE=0.2475, score=0.0000
+kan-rl-env  | ✅ [Score[B]] gen=0.501 | parsimony=0.181 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5368
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ⚠️ [Step3[C]] AST nodes=81 (cap=80), complexity=46, expr='-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.0793, MedAPE=0.0086, score=0.9128
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.1229, MedAPE=0.0155, score=0.8635
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=0.0820, MedAPE=0.0110, score=0.9079
+kan-rl-env  | ✅ [Score[C]] gen=0.894 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.7366
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ✅ [Step3[D]] AST nodes=78 (cap=80), complexity=58, expr='0.1707*x1 + 0.09598*x2 + 0.162*(0.9856 - x1)**2 + 0.0655*(-x2 - 0.3106)**2 + 2.3'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.2636, MedAPE=0.1207, score=0.6476
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4810, MedAPE=0.3167, score=0.3546
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=1.3966, MedAPE=0.6933, score=0.0000
+kan-rl-env  | ✅ [Score[D]] gen=0.383 | parsimony=0.176 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4650
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.5989  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6572
+kan-rl-env  |   Dataset B: 0.5368
+kan-rl-env  |   Dataset C: 0.7366
+kan-rl-env  |   Dataset D: 0.4650
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 8 score: 0.5989  (threshold: 0.65)
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 9...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 8 — Score: 0.5989 (FAIL ❌)
+kan-rl-env  | Priority order: D > B > A > C
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.465 (-0.107) [best: [2,2,1] r5 score=0.5725 | lr=0.001 steps=150 lambda=0.02]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT B: 0.5368 (-0.066) [best: [2,3,1] r6 score=0.6029 | lr=0.001 steps=200 lambda=0.001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6572 (-0.000) [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.7366  [best: [2,3,1] r7 score=0.7366 | lr=0.001 steps=200 lambda=0.001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 9   / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=9 | max_iter=1
+kan-rl-env  | prev=0.5989 history=[0.5751, 0.5751, 0.5751, 0.5591, 0.5894, 0.5985, 0.5989, 0.5989]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 2405 chars
+kan-rl-env  | Exec (2391 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import (
+kan-rl-env  |     train_kan, extract_symbolic, save_model,
+kan-rl-env  |     predict_from_expr, safe_refine
+kan-rl-env  | )
+kan-rl-env  | 
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | 
+kan-rl-env  | configs = {
+kan-rl-env  |     'A': {'width': [2, 3, 1], 'steps': 400, 'lambda_reg': 0.001, 'lib': ['x', 'x^2', 'sin', 'exp', 'sqrt']},
+kan-rl-env  |     'B': {'width': [2, 2, 1], 'steps': 400, 'lambda_reg': 0.001, 'lib': ['x', 'x^2', 'sin', 'exp', 'sqrt']},
+kan-rl-env  |     'C': {'width': [2, 3, 1], 'steps': 400, 'lambda_reg': 0.001, 'lib': ['x', 'sin', 'exp']},
+kan-rl-env  |     'D': {'width': [2, 2, 1], 'steps': 400, 'lambda_reg': 0.001, 'lib': ['x', 'x^2', 'sin', 'exp', 'sqrt']},
+kan-rl-env  | }
+kan-rl-env  | 
+kan-rl-env  | expressions = {}
+kan-rl-env  | for did in ['A', 'B', 'C', 'D']:
+kan-rl-env  |     cfg = configs[did]
+kan-rl-env  |     model = K
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  |  (0,1,2) with x, r2=0.01270860806107521, c=1
+kan-rl-env  | fixing (1,0,0) with x, r2=0.022292369976639748, c=1
+kan-rl-env  | fixing (1,1,0) with exp, r2=0.9993822574615479, c=2
+kan-rl-env  | fixing (1,2,0) with exp, r2=0.9997450113296509, c=2
+kan-rl-env  | [env_api] Saved C → /app/solution/models/C_model.pt (grid=5)
+kan-rl-env  | skipping (0,0,0) since already symbolic
+kan-rl-env  | skipping (0,0,1) since already symbolic
+kan-rl-env  | skipping (0,0,2) since already symbolic
+kan-rl-env  | skipping (0,1,0) since already symbolic
+kan-rl-env  | skipping (0,1,1) since already symbolic
+kan-rl-env  | skipping (0,1,2) since already symbolic
+kan-rl-env  | skipping (1,0,0) since already symbolic
+kan-rl-env  | skipping (1,1,0) since already symbolic
+kan-rl-env  | skipping (1,2,0) since already symbolic
+kan-rl-env  | [extract_symbolic] → '-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2232/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=1.1556/2.3514, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=156
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0179/0.0378, neg_slope=0.73
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0158/0.0504, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=156
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x1 + 0.1978*(0.6033 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0762, MedAPE=0.0234, score=0.9022
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2974, MedAPE=0.0481, score=0.6688
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2909, MedAPE=0.0574, score=0.6684
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6572
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=82 (cap=80), complexity=56, expr='-3.263*(-0.1137*(1 - 0.9563*x1)**2 + 0.2314*np.exp(0.8741*x2) - 1)**2 - 1.272*np'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.9204, MedAPE=0.2641, score=0.0586
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.9485, MedAPE=0.4061, score=0.0306
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=5.7154, MedAPE=0.6655, score=0.0000
+kan-rl-env  | ✅ [Score[B]] gen=0.034 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.2205
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ✅ [Step3[C]] AST nodes=78 (cap=80), complexity=43, expr='-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.0823, MedAPE=0.0085, score=0.9099
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.1284, MedAPE=0.0147, score=0.8588
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=0.1973, MedAPE=0.0151, score=0.7905
+kan-rl-env  | ✅ [Score[C]] gen=0.862 | parsimony=0.275 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.7723
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ✅ [Step3[D]] AST nodes=60 (cap=80), complexity=33, expr='-1.169e-8*x1 + 0.0001259*np.exp(0.3468*x2) + 5.646*np.exp(-0.9619*x1 - 2.777*np.'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.0249, MedAPE=0.0104, score=0.9649
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.0575, MedAPE=0.0178, score=0.9257
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.0257, MedAPE=0.0198, score=0.9551
+kan-rl-env  | ✅ [Score[D]] gen=0.949 | parsimony=0.372 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.8436
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.6234  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6572
+kan-rl-env  |   Dataset B: 0.2205
+kan-rl-env  |   Dataset C: 0.7723
+kan-rl-env  |   Dataset D: 0.8436
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 9 score: 0.6234  (threshold: 0.65)
+kan-rl-env  |   ✨ New best: 0.6234 — saved to solution/discover_best.py
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 10...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 9 — Score: 0.6234 (FAIL ❌)
+kan-rl-env  | Priority order: B > A > C > D
+kan-rl-env  |   🔴 HIGH PRIORITY B: 0.2205 (-0.382) [best: [2,3,1] r6 score=0.6029 | lr=0.001 steps=200 lambda=0.001]  — loss still high (1.1556) — try refine(5) then retrain 300 steps at lr=0.005
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6572 (-0.000) [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.7723 (+0.036) [best: [2,3,1] r7 score=0.7366 | lr=0.001 steps=200 lambda=0.001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE D: 0.8436 (+0.271) [best: [2,2,1] r5 score=0.5725 | lr=0.001 steps=150 lambda=0.02]  — good result — try smaller lib ['x','x^2','sin'] to reduce AST nodes further (60 → target <40)
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 10  / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=10 | max_iter=1
+kan-rl-env  | prev=0.6234 history=[0.5751, 0.5751, 0.5751, 0.5591, 0.5894, 0.5985, 0.5989, 0.5989, 0.6234]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 2066 chars
+kan-rl-env  | Exec (2052 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import (
+kan-rl-env  |     train_kan, extract_symbolic, save_model,
+kan-rl-env  |     predict_from_expr, safe_refine, safe_sqrt, safe_log
+kan-rl-env  | )
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | expressions = {}
+kan-rl-env  | # per‑dataset library choices (B adjusted)
+kan-rl-env  | libs = {
+kan-rl-env  |     'A': ['x','x^2','sin','exp','sqrt'],
+kan-rl-env  |     'B': ['x','x^2','sin','sqrt'],          # removed exp per feedback
+kan-rl-env  |     'C': ['x','x^2','sin','exp','sqrt'],
+kan-rl-env  |     'D': ['x','x^2','sin','exp','sqrt'],
+kan-rl-env  | }
+kan-rl-env  | for did in ['A','B','C','D']:
+kan-rl-env  |     model = KAN(width=[2,3,1], grid=3, k=3)
+kan-rl-env  |     # Phase 1: initial training
+kan-rl-env  |     trained, _ = train_kan(did, model, {'lr':0.01,'steps':400,'lambda_reg':0.001})
+kan-rl-env  |     # Phase 2: refine spline resolution then fine
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  | eady symbolic
+kan-rl-env  | skipping (0,1,2) since already symbolic
+kan-rl-env  | skipping (1,0,0) since already symbolic
+kan-rl-env  | skipping (1,1,0) since already symbolic
+kan-rl-env  | skipping (1,2,0) since already symbolic
+kan-rl-env  | [extract_symbolic] → '-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2)) - 0.01786*np.exp(0.004727*x2 + 4.769*np.sqrt(1 - 0.2467*x1)) + 1.836'
+kan-rl-env  | C: -0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2)) - 0.01786*np.exp(0.004727*x2 + 4.769*np.sqrt(1 - 0.2467*x1)) + 1.836
+kan-rl-env  | [env_api] D | steps=400 | loss 2.6954→0.0358 | hash=a4fd4dcbc7c4e3c7 | 5.1s
+kan-rl-env  | [env_api] refine(5) OK — grid updated
+kan-rl-env  | [env_api] D | steps=200 | loss 0.0675→0.0134 | hash=e937d07353f62f2c | 2.6s
+kan-rl-env  | fixing
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2232/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0338/0.4731, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0179/0.0378, neg_slope=0.73
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0134/0.0675, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=220
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x1 + 0.1978*(0.6033 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0762, MedAPE=0.0234, score=0.9022
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2974, MedAPE=0.0481, score=0.6688
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2909, MedAPE=0.0574, score=0.6684
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6572
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=81 (cap=80), complexity=55, expr='0.1684*x1 + 0.3344*x2 + 1.503*np.sin(0.7256*x1 - 0.3514*x2 + 7.693) + 20.91*np.s'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1695, MedAPE=0.0578, score=0.7825
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3786, MedAPE=0.1170, score=0.5487
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3687, MedAPE=0.2238, score=0.4900
+kan-rl-env  | ✅ [Score[B]] gen=0.628 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5765
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ⚠️ [Step3[C]] AST nodes=81 (cap=80), complexity=46, expr='-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.0793, MedAPE=0.0086, score=0.9128
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.1229, MedAPE=0.0155, score=0.8635
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=0.0820, MedAPE=0.0110, score=0.9079
+kan-rl-env  | ✅ [Score[C]] gen=0.894 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.7366
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ⚠️ [Step3[D]] AST nodes=101 (cap=80), complexity=62, expr='0.1707*x1 + 3.799*np.exp(-0.6654*x1 + 0.1963*np.sin(0.9664*x2 - 9.142)) + 1.15*n'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.2880, MedAPE=0.1433, score=0.6100
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.4431, MedAPE=0.3410, score=0.3670
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.4015, MedAPE=0.4842, score=0.3087
+kan-rl-env  | ✅ [Score[D]] gen=0.450 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.4698
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.6100  (FAIL ❌)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6572
+kan-rl-env  |   Dataset B: 0.5765
+kan-rl-env  |   Dataset C: 0.7366
+kan-rl-env  |   Dataset D: 0.4698
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 10 score: 0.6100  (threshold: 0.65)
+kan-rl-env  | 
+kan-rl-env  |   [feedback] Formatting RL feedback for round 11...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | RL ROUND 10 — Score: 0.61 (FAIL ❌)
+kan-rl-env  | Priority order: D > B > A > C
+kan-rl-env  |   🟡 NEEDS IMPROVEMENT D: 0.4698 (-0.374) [best: [2,2,1] r9 score=0.8436 | lr=0.001 steps=200 lambda=0.001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE B: 0.5765 (-0.026) [best: [2,3,1] r6 score=0.6029 | lr=0.001 steps=200 lambda=0.001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE A: 0.6572 (-0.000) [best: [2,3,1] r1 score=0.6574 | lr=0.001 steps=200 lambda=0.0001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  |   🟢 ACCEPTABLE C: 0.7366 (-0.036) [best: [2,3,1] r9 score=0.7723 | lr=0.001 steps=200 lambda=0.001]  — STALE MODEL detected — same initial_loss as a previous round. The model was NOT retrained. Always retrain all 4 datasets each round.
+kan-rl-env  | ============================================================
+kan-rl-env  | Feedback written → /app/solution/rl_feedback.json
+kan-rl-env  |   [rate-limit] Waiting 61s before next round (Groq token quota reset)...
+kan-rl-env  | 
+kan-rl-env  | ╔══════════════════════════════════════════════════════════╗
+kan-rl-env  | ║  RL ROUND 11  / 20                                      ║
+kan-rl-env  | ╚══════════════════════════════════════════════════════════╝
+kan-rl-env  | 
+kan-rl-env  |   [agent] Running LLM agent...
+kan-rl-env  | ============================================================
+kan-rl-env  | KAN Agent | openai/gpt-oss-120b | round=11 | max_iter=1
+kan-rl-env  | prev=0.61 history=[0.5751, 0.5751, 0.5751, 0.5591, 0.5894, 0.5985, 0.5989, 0.5989, 0.6234, 0.61]
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | ──────────────────────────────────────── ITER 1/1 ────────────────────────────────────────
+kan-rl-env  | Calling openai/gpt-oss-120b...
+kan-rl-env  | Response: 2561 chars
+kan-rl-env  | Exec (2547 chars)...
+kan-rl-env  | --- code ---
+kan-rl-env  | import sys, os, numpy as np
+kan-rl-env  | sys.path.insert(0, '.')
+kan-rl-env  | os.environ.setdefault('DATA_DIR', 'data')
+kan-rl-env  | os.environ.setdefault('SOLUTION_DIR', 'solution')
+kan-rl-env  | os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
+kan-rl-env  | from kan import KAN
+kan-rl-env  | from env_api.kan_env import (
+kan-rl-env  |     train_kan, extract_symbolic, save_model, predict_from_expr,
+kan-rl-env  |     safe_refine, safe_sqrt, safe_log,
+kan-rl-env  | )
+kan-rl-env  | 
+kan-rl-env  | os.makedirs('solution/models', exist_ok=True)
+kan-rl-env  | 
+kan-rl-env  | # per‑dataset hyper‑configs (only ONE change per dataset)
+kan-rl-env  | configs = {
+kan-rl-env  |     'A': {'width': [2, 3, 1], 'steps': 400, 'lambda_reg': 0.001},
+kan-rl-env  |     'B': {'width': [2, 3, 1], 'steps': 400, 'lambda_reg': 0.002},   # λ ↑
+kan-rl-env  |     'C': {'width': [2, 3, 1], 'steps': 400, 'lambda_reg': 0.001},
+kan-rl-env  |     'D': {'width': [2, 2, 1], 'steps': 400, 'lambda_reg': 0.001},   # narrower net
+kan-rl-env  | }
+kan-rl-env  | 
+kan-rl-env  | # reduced function libraries (2‑3 functions) for low‑parsimony sets
+kan-rl-env  | libs = {
+kan-rl-env  |     'A': ['x', 'x^2', 'sin', 'exp', 'sqrt'],
+kan-rl-env  |     'B': ['x', '
+kan-rl-env  | --- end ---
+kan-rl-env  | RC=0
+kan-rl-env  | stdout:
+kan-rl-env  | th exp, r2=0.9999182820320129, c=2
+kan-rl-env  | fixing (0,1,2) with x, r2=0.01270860806107521, c=1
+kan-rl-env  | fixing (1,0,0) with x, r2=0.022292369976639748, c=1
+kan-rl-env  | fixing (1,1,0) with exp, r2=0.9993822574615479, c=2
+kan-rl-env  | fixing (1,2,0) with exp, r2=0.9997450113296509, c=2
+kan-rl-env  | [env_api] Saved C → /app/solution/models/C_model.pt (grid=5)
+kan-rl-env  | skipping (0,0,0) since already symbolic
+kan-rl-env  | skipping (0,0,1) since already symbolic
+kan-rl-env  | skipping (0,0,2) since already symbolic
+kan-rl-env  | skipping (0,1,0) since already symbolic
+kan-rl-env  | skipping (0,1,1) since already symbolic
+kan-rl-env  | skipping (0,1,2) since already symbolic
+kan-rl-env  | skipping (1,0,0) since already symbolic
+kan-rl-env  | skipping (1,1,0) since already symbolic
+kan-rl-env  | skipping (1,2,0) since already symbolic
+kan-rl-env  | [extract_symbolic] → '-0.0002773*x1 -
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | Agent done. Solution: OK
+kan-rl-env  | 
+kan-rl-env  |   [judge] Scoring solution...
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | JUDGE — KAN Symbolic Regression RL Environment
+kan-rl-env  | ============================================================
+kan-rl-env  | ✅ [Step1] discover.py loaded, discover_law() and predict() found
+kan-rl-env  | ✅ [Step1] Smoke test passed. expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x...'
+kan-rl-env  | ✅ [Step2] No forbidden imports detected
+kan-rl-env  | ✅ [Step2b[A]] loss_improvement: final/initial=0.2232/1.4948, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[A]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[A]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[B]] loss_improvement: final/initial=0.0313/0.4841, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[B]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[B]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[C]] loss_improvement: final/initial=0.0179/0.0378, neg_slope=0.73
+kan-rl-env  | ✅ [Step2b[C]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[C]] param_count: n_params=220
+kan-rl-env  | ✅ [Step2b[D]] loss_improvement: final/initial=0.0158/0.0504, neg_slope=1.00
+kan-rl-env  | ✅ [Step2b[D]] kan_verified: KAN submodules detected
+kan-rl-env  | ✅ [Step2b[D]] param_count: n_params=156
+kan-rl-env  | 
+kan-rl-env  | --- Dataset A ---
+kan-rl-env  | ⚠️ [Step3[A]] AST nodes=81 (cap=80), complexity=55, expr='1.948*(0.5098*x1 + 0.3839*x2 - 1)**2 - 8.572*np.sin(0.3729*x1 + 0.1978*(0.6033 -'
+kan-rl-env  | ✅ [Step3[A]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[A]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[A][iid]] NRMSE=0.0762, MedAPE=0.0234, score=0.9022
+kan-rl-env  | ✅ [Step5[A][ood1]] NRMSE=0.2974, MedAPE=0.0481, score=0.6688
+kan-rl-env  | ✅ [Step5[A][ood2]] NRMSE=0.2909, MedAPE=0.0574, score=0.6684
+kan-rl-env  | ✅ [Score[A]] gen=0.762 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6572
+kan-rl-env  | 
+kan-rl-env  | --- Dataset B ---
+kan-rl-env  | ⚠️ [Step3[B]] AST nodes=98 (cap=80), complexity=62, expr='-1.317*np.sin(-0.7832*x1 + 0.3618*x2 + 5.005) + 0.6068*np.sin(0.257*x1 + 0.5835*'
+kan-rl-env  | ✅ [Step3[B]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[B]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[B][iid]] NRMSE=0.1808, MedAPE=0.0642, score=0.7666
+kan-rl-env  | ✅ [Step5[B][ood1]] NRMSE=0.3777, MedAPE=0.1279, score=0.5427
+kan-rl-env  | ✅ [Step5[B][ood2]] NRMSE=0.3671, MedAPE=0.2288, score=0.4881
+kan-rl-env  | ✅ [Score[B]] gen=0.619 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.5712
+kan-rl-env  | 
+kan-rl-env  | --- Dataset C ---
+kan-rl-env  | ⚠️ [Step3[C]] AST nodes=81 (cap=80), complexity=46, expr='-0.0002773*x1 - 0.0001229*x2 + 7.296*np.exp(0.001704*x1 - 1.337*np.exp(0.3394*x2'
+kan-rl-env  | ✅ [Step3[C]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[C]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[C][iid]] NRMSE=0.0793, MedAPE=0.0086, score=0.9128
+kan-rl-env  | ✅ [Step5[C][ood1]] NRMSE=0.1229, MedAPE=0.0155, score=0.8635
+kan-rl-env  | ✅ [Step5[C][ood2]] NRMSE=0.0820, MedAPE=0.0110, score=0.9079
+kan-rl-env  | ✅ [Score[C]] gen=0.894 | parsimony=0.000 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.7366
+kan-rl-env  | 
+kan-rl-env  | --- Dataset D ---
+kan-rl-env  | ✅ [Step3[D]] AST nodes=43 (cap=80), complexity=26, expr='-1.169e-8*x1 + 8.297e-5*x2 - 25.15*np.sin(0.1733*x1 - 0.1072*x2 + 1.379) + 25.39'
+kan-rl-env  | ✅ [Step3[D]] Expression evaluates cleanly on in-domain points
+kan-rl-env  | ✅ [Step4[D]] divergence=0.0000, consistency=1.000
+kan-rl-env  | ✅ [Step5[D][iid]] NRMSE=0.1192, MedAPE=0.0649, score=0.8237
+kan-rl-env  | ✅ [Step5[D][ood1]] NRMSE=0.2315, MedAPE=0.1337, score=0.6657
+kan-rl-env  | ✅ [Step5[D][ood2]] NRMSE=0.8695, MedAPE=0.1631, score=0.1093
+kan-rl-env  | ✅ [Score[D]] gen=0.590 | parsimony=0.458 | consistency=1.000 | kan_conf=1.000 → DATASET SCORE = 0.6456
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  | FINAL SCORE: 0.6527  (PASS ✅)
+kan-rl-env  | Threshold: 0.65
+kan-rl-env  |   Dataset A: 0.6572
+kan-rl-env  |   Dataset B: 0.5712
+kan-rl-env  |   Dataset C: 0.7366
+kan-rl-env  |   Dataset D: 0.6456
+kan-rl-env  | ============================================================
+kan-rl-env  | 
+kan-rl-env  | Results written to /app/solution/judge_result.json
+kan-rl-env  | 
+kan-rl-env  |   Round 11 score: 0.6527  (threshold: 0.65)
+kan-rl-env  |   ✨ New best: 0.6527 — saved to solution/discover_best.py
+kan-rl-env  | 
+kan-rl-env  |   ✅ PASSED threshold 0.65 at round 11!
+kan-rl-env  | 
+kan-rl-env  | [3/3] RL loop complete. Best score: 0.6527
+kan-rl-env  | 
+kan-rl-env  | ============================================================
+kan-rl-env  |   Pipeline complete.
+kan-rl-env  | ============================================================
+[Kkan-rl-env exited with code 0

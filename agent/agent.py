@@ -29,7 +29,10 @@ FEEDBACK_PATH  = os.path.join(SOLUTION_DIR, "rl_feedback.json")
 SYSTEM_PROMPT = """\
 KAN symbolic regression agent. Goal: discover simple expressions for datasets A, B, C, D.
 
-SCORING: score = gen * min(1, 60/ast_nodes)  — complexity penalty is MULTIPLICATIVE.
+SCORING: score = 0.60*gen + 0.20*parsimony + 0.10*consistency + 0.10*kan_conformity
+PARSIMONY: exp(-0.03 * complexity) if ast_nodes <= 80 else 0
+  complexity = n_ops + 2*n_constants. Keep expressions under 80 AST nodes.
+  Under the cap: simpler is better (10 nodes→0.74, 30 nodes→0.41, 60 nodes→0.16, 79 nodes→0.09).
 Short expressions that extrapolate win. Complex ones that memorise lose.
 
 OOD2 DIAGNOSIS (use this when ood2 is low in feedback):
@@ -39,11 +42,27 @@ OOD2 DIAGNOSIS (use this when ood2 is low in feedback):
 - Never reduce lib when ood2 is near 0 — that makes extrapolation worse
 
 BEST CONFIG RULE (most important):
-- Each dataset has a "best_config" in the feedback (best width + score so far).
-- If a dataset's score DROPPED vs prev round: revert to its best_config width.
-- If a dataset's score is ACCEPTABLE (>0.60): keep its config, only tune lambda_reg.
-- Only change architecture if score is LOW and best_config width was also used in a bad round.
+- Each dataset has a "best_config" in the feedback (best width + score + lr + steps + lambda_reg).
+- If a dataset's score DROPPED vs prev round: revert to its best_config (copy lr/steps/lambda_reg exactly).
+- If a dataset's score >= 0.65: FREEZE — do not change config at all. Copy best_config exactly.
+- If a dataset's score is 0.60-0.65: keep its config, only tune lambda_reg.
+- Only change architecture if score is LOW (<0.50) and best_config width was also used in a bad round.
 - Use PER-DATASET configs — do not apply a single uniform config to all 4 datasets.
+
+DIVERGENCE RULE (based on observable trace signal only):
+- If a dataset trace shows final_loss > 3 × initial_loss → that dataset diverged.
+- Next round: set lr=0.005 for that dataset (halve the default). Do not increase steps.
+- The env_api will auto-retry internally on divergence, but lower lr in your config prevents it.
+
+SAFE MATH RULE (prevents OOD-2 NaN collapse):
+- safe_sqrt and safe_log are available: from env_api.kan_env import safe_sqrt, safe_log
+- safe_sqrt(x) = sqrt(max(x, 0))  — prevents NaN when sqrt argument goes negative OOD
+- safe_log(x)  = log(max(x, 1e-8)) — prevents NaN/−inf when log argument goes to 0 OOD
+- USE safe_sqrt/safe_log in discover_law() whenever the expression contains:
+    sqrt(sin(...)), sqrt(1 - ...), sqrt(exp(...) - constant), log(f(x))
+  i.e. any sqrt/log whose argument can plausibly be negative outside training domain.
+- In predict(), safe_sqrt/safe_log are also available via the same import.
+- If feedback reports OOD2 < 0.20 AND expression contains sqrt or log: apply this rule.
 
 Example of per-dataset loop:
 configs = {
@@ -55,7 +74,12 @@ configs = {
 for did in ['A','B','C','D']:
     cfg = configs[did]
     model = KAN(width=cfg['width'], grid=3, k=3)
+    # Phase 1: initial training
     trained_model, _ = train_kan(did, model, {'lr':0.01,'steps':cfg['steps'],'lambda_reg':cfg['lambda_reg']})
+    # Phase 2: refine BEFORE auto_symbolic (increases spline resolution)
+    trained_model = safe_refine(trained_model, 5)
+    trained_model, _ = train_kan(did, trained_model, {'lr':0.001,'steps':200,'lambda_reg':cfg['lambda_reg']})
+    # Phase 3: symbolise on precise splines
     try: trained_model.auto_symbolic(lib=['x','x^2','sin','exp','sqrt'])
     except Exception as e: print(f'auto_symbolic {did}: {e}')
     ...
@@ -71,19 +95,19 @@ os.environ.setdefault('DATA_DIR', 'data')
 os.environ.setdefault('SOLUTION_DIR', 'solution')
 os.environ.setdefault('TRACE_DIR', '/tmp/kan_traces')
 from kan import KAN
-from env_api.kan_env import train_kan, extract_symbolic, save_model, predict_from_expr
+from env_api.kan_env import train_kan, extract_symbolic, save_model, predict_from_expr, safe_refine, safe_sqrt, safe_log
 os.makedirs('solution/models', exist_ok=True)
 expressions = {}
 for did in ['A','B','C','D']:
     model = KAN(width=[2,3,1], grid=3, k=3)
+    # Phase 1: initial training on grid=3
     trained_model, _ = train_kan(did, model, {'lr':0.01,'steps':400,'lambda_reg':0.001})
+    # Phase 2: refine FIRST (grid 3→5), then retrain — BEFORE auto_symbolic
+    trained_model = safe_refine(trained_model, 5)
+    trained_model, _ = train_kan(did, trained_model, {'lr':0.001,'steps':200,'lambda_reg':0.0001})
+    # Phase 3: symbolise on precise splines — AFTER refine+retrain
     try: trained_model.auto_symbolic(lib=['x','x^2','sin','exp','sqrt'])
     except Exception as e: print(f'auto_symbolic {did}: {e}')
-    try:
-        os.makedirs('./model', exist_ok=True)
-        trained_model = trained_model.refine(5)
-        trained_model, _ = train_kan(did, trained_model, {'lr':0.001,'steps':200,'lambda_reg':0.0001})
-    except Exception as e: print(f'refine {did}: {e}')
     save_model(trained_model, did)
     expressions[did] = extract_symbolic(trained_model, n_vars=2)
     print(f'{did}: {expressions[did]}')
@@ -227,7 +251,7 @@ def build_initial_task() -> str:
     if ctx:
         return (f"Round {RL_ROUND}. Results:\n{ctx}\n\n"
                 "Change ONE hyperparameter at a time. "
-                "Simpler expressions score higher (penalty=60/ast_nodes). "
+                "Simpler expressions score higher (exp(-0.03*complexity), cap=80 nodes). "
                 "Output ONE python code block.")
     return ("Round 1. Use the SCRIPT TEMPLATE. "
             "Output ONE python code block.")

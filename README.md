@@ -1,8 +1,117 @@
-# KAN Symbolic Regression — RL Environment
+# kan-rl-env
 
-A reinforcement learning environment where an LLM agent trains Kolmogorov-Arnold Networks (KANs) to discover symbolic scientific laws from noisy data.
+**An LLM agent trained via a Reinforcement Learning loop to train Kolmogorov-Arnold Networks (KANs) for symbolic scientific law discovery.**
 
-Based on the RL environment design from the Preference Model Assessment (KANs + neuro-symbolic reasoning).
+> The agent iteratively improves its KAN training strategy across 20 RL rounds — receiving structured feedback on generalization, expression complexity, and OOD extrapolation — until it discovers interpretable mathematical laws from noisy scientific datasets.
+
+---
+
+## What this is
+
+Standard ML pipelines are designed by humans. This project inverts that: an LLM agent **designs the pipeline itself**, adapting its choices round after round based on structured reward signals.
+
+The task is symbolic regression on four scientific datasets drawn from physics, biology, chemistry, and neuroscience. Each dataset is generated from an unknown law with Gaussian noise. The agent must:
+
+1. Choose a KAN architecture (`width`, `grid`, `k`)
+2. Configure training hyperparameters (`lr`, `steps`, `lambda_reg`)
+3. Select a symbolic function library for activation identification
+4. Extract a human-readable mathematical expression consistent with the trained KAN
+
+The deliverable is simultaneously a **working trained KAN** and a **symbolic expression** that the judge verifies against the KAN's own learned activations — not against ground truth. This dual constraint is what makes reward hacking structurally difficult.
+
+---
+
+## The RL Loop
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         RL ROUND N                              │
+│                                                                 │
+│  ┌──────────┐    code + configs    ┌──────────────────────┐    │
+│  │          │ ──────────────────▶  │                      │    │
+│  │   LLM    │                      │  KAN Training        │    │
+│  │  Agent   │                      │  (env_api)           │    │
+│  │          │ ◀──────────────────  │                      │    │
+│  └──────────┘   structured         └──────────┬───────────┘    │
+│       ▲         feedback                       │                │
+│       │                                        ▼                │
+│       │                            ┌──────────────────────┐    │
+│       └────────────────────────────│       Judge          │    │
+│         score + per-dataset        │  (7-step evaluation) │    │
+│         diagnosis                  └──────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+Each round, the agent receives:
+- A **per-dataset score** (generalization × parsimony × consistency × KAN conformity)
+- **Diagnostic signals**: stale model detection, OOD-2 collapse warnings, divergence alerts, parsimony gap
+- A **best_config** history: the exact hyperparameters that produced the best score per dataset
+- A **priority order**: which datasets to focus on first
+
+The agent analyzes this feedback, writes new Python code, and submits an updated solution. No gradient flows through the LLM — the improvement signal is purely textual, making this a genuine RL-over-language setup.
+
+---
+
+## A Concrete Feedback Example — Round 10 → 11
+
+**Round 10** scores 0.61 — all four datasets flagged as stale models:
+
+```
+🟡 NEEDS IMPROVEMENT D: 0.4698  — STALE MODEL detected. Always retrain all 4 datasets each round.
+🟢 ACCEPTABLE B:        0.5765  — STALE MODEL detected.
+🟢 ACCEPTABLE A:        0.6572  — STALE MODEL detected.
+🟢 ACCEPTABLE C:        0.7366  — STALE MODEL detected.
+```
+
+The feedback system detects that the agent reused cached models instead of retraining — `initial_loss` identical to a previous round gives it away. The judge also notes that D dropped from its best of **0.8436** (round 9) to 0.4698.
+
+**Round 11** — the agent responds:
+
+```python
+configs = {
+    'A': {'width': [2,3,1], 'steps': 400, 'lambda_reg': 0.001},
+    'B': {'width': [2,3,1], 'steps': 400, 'lambda_reg': 0.002},  # λ ↑ to reduce overfit
+    'C': {'width': [2,3,1], 'steps': 400, 'lambda_reg': 0.001},
+    'D': {'width': [2,2,1], 'steps': 400, 'lambda_reg': 0.001},  # narrower net
+}
+```
+
+Dataset D with `[2,2,1]` produces an expression with only **43 AST nodes** — well below the cap — scoring `parsimony=0.458`. Final score: **0.6527 ✅ PASS**.
+
+```
+Dataset D expression: -25.15*np.sin(0.1733*x1 - 0.1072*x2 + 1.379) + 25.39
+AST nodes: 43  →  parsimony = exp(-0.03 × 26) = 0.458
+```
+
+This is the feedback loop at work: a stale model warning + best_config hint → architecture change → parsimony bonus unlocked → threshold crossed.
+
+---
+
+## Results
+
+### GPT-OSS 120B — 11 rounds
+
+| Round | Final Score | A | B | C | D | Status |
+|-------|------------|---|---|---|---|--------|
+| 1 | 0.5751 | 0.657 | 0.602 | 0.572 | 0.469 | ❌ |
+| 4 | 0.5591 | 0.657 | 0.577 | 0.565 | 0.437 | ❌ |
+| 5 | 0.5894 | 0.657 | 0.577 | 0.551 | 0.573 | ❌ |
+| 6 | 0.5985 | 0.657 | 0.603 | 0.664 | 0.470 | ❌ |
+| 7 | 0.5989 | 0.657 | 0.537 | **0.737** | 0.465 | ❌ |
+| 9 | 0.6234 | 0.657 | 0.221 | 0.772 | **0.844** | ❌ |
+| 10 | 0.6100 | 0.657 | 0.577 | 0.737 | 0.470 | ❌ |
+| **11** | **0.6527** | **0.657** | **0.571** | **0.737** | **0.646** | **✅ PASS** |
+
+**Best per-dataset across all rounds:**
+
+| Dataset | Best Score | Best Gen | Best OOD-2 | Best Parsimony |
+|---------|-----------|----------|------------|----------------|
+| A | 0.657 | 0.762 | 0.669 | 0.000 |
+| B | 0.603 | 0.672 | 0.516 | 0.181 |
+| C | **0.772** | **0.894** | **0.908** | 0.533 |
+| D | **0.844** | **0.949** | **0.955** | 0.458 |
+
+C and D reach strong generalization scores (gen > 0.89) with solid OOD-2 extrapolation. A is systematically limited by expression complexity (81 nodes, 1 above cap). B remains the weakest dataset — persistent overfit on OOD-2.
 
 ---
 
@@ -11,144 +120,111 @@ Based on the RL environment design from the Preference Model Assessment (KANs + 
 ```
 kan-rl-env/
 ├── env_api/
-│   └── kan_env.py          # Instrumented training API (agent MUST use this)
-├── datasets/
-│   └── generate.py         # Generates 4 toy datasets with hidden laws
-├── data/                   # Generated at runtime (gitignored)
-│   ├── train_A.csv         # 150 samples, 2 inputs
-│   ├── train_B.csv
-│   ├── train_C.csv
-│   ├── train_D.csv
-│   └── domains.json        # Valid input ranges per variable
+│   └── kan_env.py          # Instrumented training API (train_kan, safe_refine, safe_sqrt)
 ├── judge/
-│   ├── judge.py            # 7-step judge (no false positives by design)
-│   └── ground_truth.json   # Generated at runtime, judge-only
+│   └── judge.py            # 7-step scoring judge
 ├── agent/
-│   └── agent.py            # LLM agent using Grok API
-├── solution/               # Agent writes here (gitignored except discover.py template)
-│   ├── discover.py         # DELIVERABLE: discover_law() + predict()
-│   └── models/             # Saved KAN weights
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-└── run.sh
+│   └── agent.py            # LLM agent (OpenRouter-compatible)
+├── feedback_formatter.py   # Converts judge output → structured RL feedback
+├── log_results.py          # Results logger + matplotlib plots
+├── data/                   # Scientific datasets (A, B, C, D)
+├── solution/               # Agent-written solution (discover.py + models/)
+└── docker-compose.yml
 ```
 
 ---
 
-## Datasets (toy model)
+## Scoring
 
-| Dataset | Law | Domain | Field |
-|---------|-----|--------|-------|
-| A | `k * x1 * x2` | x1,x2 ∈ [0.5, 3.0] | Physics (force) |
-| B | `k * sin(x1) + x2²` | x1 ∈ [0, π], x2 ∈ [0.5, 2.0] | Signal processing |
-| C | `k * x1 / (x1 + x2)` | x1,x2 ∈ [0.5, 3.0] | Biology (Michaelis-Menten) |
-| D | `k * exp(-x1) * x2` | x1 ∈ [0.1, 2.0], x2 ∈ [0.5, 3.0] | Chemistry (decay) |
+```
+score = 0.60 × generalization
+      + 0.20 × parsimony
+      + 0.10 × consistency
+      + 0.10 × kan_conformity
 
-Constants `k` are randomized per run (unknown to agent).
+final_score = mean(A, B, C, D)   ←  pass threshold: 0.65
+```
+
+**Generalization** is evaluated across 3 OOD regimes:
+- IID (0.40): new points in the training domain
+- OOD-1 (0.35): all variables extended ±30%
+- OOD-2 (0.25): asymmetric — x1 at 2× range (hardest, targets wrong functional forms)
+
+**Parsimony** uses an exponential decay with a hard cap:
+```
+parsimony = exp(-0.03 × complexity)   if ast_nodes ≤ 80
+parsimony = 0                          if ast_nodes > 80
+
+complexity = n_ops + 2 × n_constants
+```
+
+**Consistency** verifies that `discover_law()` and `predict()` agree on 400 held-out points — catching agents that return a hardcoded expression without a real KAN.
+
+**KAN Conformity** verifies training traces, model hashes, and spline submodule presence via the instrumented `env_api` — cannot be spoofed from log files.
 
 ---
 
-## Judge (7 steps)
+## Reward Hacking Prevention
 
-1. **File & interface check** — discover.py exists, functions importable, smoke test
-2. **KAN training verification** — trace from `env_api.train_kan()`, loss improvement, KAN submodules
-3. **Expression validity + AST cap** — eval() works, node count ≤ 60/70/80 by dimensionality
-4. **Expression ↔ KAN consistency** — 400 points, divergence threshold 0.20 (gating faible)
-5. **Multi-OOD generalization** — 3 regimes (IID, OOD-1 ±30%, OOD-2 asymmetric)
-6. **Parsimony** — MDL-based complexity penalty, no SymPy normalization
-7. **Final score** — `0.60*gen + 0.20*parsimony + 0.10*consistency + 0.10*kan_conformity`
+The triple constraint makes single-axis gaming ineffective:
 
-**Pass threshold: 0.65**
+| Attack | Detection |
+|--------|-----------|
+| Use PySR/gplearn | Import audit + expr↔KAN consistency check |
+| Hardcode expression | `expr(X)` vs `predict(X)` on 400 held-out points |
+| Overfit polynomial passing OOD-1 | Asymmetric OOD-2 + AST hard cap |
+| Read test data from disk | Ground truth generated inside judge at runtime |
+| Fake training trace | `env_api` instruments automatically, `model_hash` verified |
 
 ---
 
 ## Quickstart
 
-### Option 1: Docker (recommended)
-
 ```bash
-# 1. Copy and fill your API key
+# Configure model and API key
 cp .env.example .env
-# Edit .env: set GROK_API_KEY=xai-...
+# OPENROUTER_API_KEY=...
+# AGENT_MODEL=openai/gpt-oss-120b   # or meta-llama/llama-3.3-70b-versatile
 
-# 2. Build and run full pipeline (agent + judge)
-docker compose --env-file .env up rl-env
+# Run 20 RL rounds
+make restart MODEL="gpt-oss-120b"
 
-# 3. Run judge only (on your own solution)
-docker compose up judge
-
-# 4. Generate data only
-docker compose up datagen
+# Log and plot results
+make logs MODEL="gpt-oss-120b"
+python log_results.py --plot --summary
 ```
 
-### Option 2: Local Python
+**Requirements:** Docker, Docker Compose. Python 3.11+ on host for plotting (`pip install matplotlib numpy`).
+
+---
+
+## Logging & Comparison
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# After each run, parse logs into structured JSON
+python log_results.py --model "gpt-oss-120b"   --logfile logs/run_gpt.txt
+python log_results.py --model "llama-3.3-70b"  --logfile logs/run_llama70b.txt
+python log_results.py --model "llama-3.1-8b"   --logfile logs/run_llama8b.txt
 
-# Generate datasets
-python3 datasets/generate.py
-
-# Run agent (needs GROK_API_KEY)
-export GROK_API_KEY=xai-...
-python3 agent/agent.py
-
-# Run judge
-python3 judge/judge.py
-
-# Or run everything
-bash run.sh full
+# Generate comparison plots
+python log_results.py --plot --summary
 ```
+
+Produces 5 plots: score evolution, per-dataset evolution, best score comparison, OOD-2 extrapolation quality, and parsimony evolution across models.
 
 ---
 
-## Writing Your Own Solution
+## Environment Design Notes
 
-The agent must produce `solution/discover.py` with:
+**Why KANs?** KANs (Liu et al., 2024) replace fixed activation functions with learnable splines on edges — making learned representations directly inspectable and symbolically identifiable. This makes them uniquely suited for scientific law discovery, where the goal is not just prediction but understanding.
 
-```python
-def discover_law(dataset_id: str) -> str:
-    """Returns numpy-evaluable symbolic expression, e.g. '2.5 * x1 * x2'"""
-    ...
+**Why symbolic regression?** It creates a verifiable dual deliverable: the agent must produce both a working model and a human-readable expression that the judge can verify for mutual consistency — without access to ground truth. This closes the main reward hacking avenue that single-objective judges leave open.
 
-def predict(dataset_id: str, X: np.ndarray) -> np.ndarray:
-    """Returns KAN model predictions. X shape: (N, 2). Must NOT use expression."""
-    ...
-```
-
-**You MUST use `env_api.train_kan()` for training** — the judge reads the instrumented trace directly.
-
-```python
-from kan import KAN
-from env_api.kan_env import train_kan
-
-model = KAN(width=[2, 3, 1], grid=3, k=3, seed=42)
-trained_model, trace = train_kan("A", model, {"lr": 0.01, "steps": 150})
-```
+**Why RL over text?** Each round is a full experiment: the agent writes code, trains a KAN, receives a structured score, and adapts. This is a microcosm of how ML research actually works — iterative, signal-driven, with a fixed budget of experiments.
 
 ---
 
-## Reward Hacking Protection
+## References
 
-| Attack | Detection |
-|--------|-----------|
-| Use PySR/gplearn | Import audit (soft −0.30) + expr↔KAN consistency |
-| Return expression not from KAN | Step 4: median divergence on 400 points |
-| Overfit polynomial | Multi-regime OOD (3 regimes, asymmetric) |
-| Fake training logs | env_api traces are written by the API, not the agent |
-| Read test data | Ground truth generated inside judge process, never on disk |
-
----
-
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `GROK_API_KEY` | — | Required for agent |
-| `GROK_MODEL` | `grok-3-mini` | Grok model to use |
-| `MAX_ITERATIONS` | `3` | Agent iteration budget |
-| `DATA_DIR` | `data` | Dataset location |
-| `SOLUTION_DIR` | `solution` | Agent output location |
-| `TRACE_DIR` | `/tmp/kan_traces` | env_api trace location |
+- Liu, Z. et al. (2024). [KAN: Kolmogorov-Arnold Networks](https://arxiv.org/abs/2404.19756)
+- Cranmer, M. (2023). [Interpretable Machine Learning for Science](https://arxiv.org/abs/2301.04589)

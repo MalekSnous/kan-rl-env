@@ -66,59 +66,85 @@ def train_kan(dataset_id: str, model, config: dict) -> tuple:
     seed     = int(config.get("seed", 42))
     lamb     = float(config.get("lambda_reg", 0.001))
 
-    torch.manual_seed(seed)
-    np.random.seed(seed)
-
-    dataset_dict = {
-        "train_input": X, "train_label": y,
-        "test_input":  X, "test_label":  y,
-    }
+    # Divergence recovery: if final_loss > 3 × initial_loss, retry with halved lr
+    # Pure signal-based heuristic — no dataset knowledge involved.
+    MAX_RETRIES = 2
+    DIVERGENCE_THRESHOLD = 3.0
 
     loss_history = []
     t0 = time.time()
 
-    try:
-        # Exact signature (inspected from container):
-        # fit(self, dataset, opt='LBFGS', steps=100, log=1, lamb=0.0,
-        #     lamb_l1=1.0, lamb_entropy=2.0, lr=1.0, batch=-1,
-        #     update_grid=True, device='cpu', ...)
-        results = model.fit(
-            dataset_dict,
-            opt="Adam",     # Adam converges faster than LBFGS on small datasets
-            steps=steps,
-            log=steps,      # print only once at the end (log every N steps)
-            lamb=lamb,
-            lr=lr,
-            update_grid=True,
-            device="cpu",
-        )
-        # results is a dict with keys like 'train_loss', 'test_loss'
-        if isinstance(results, dict):
-            key = next((k for k in ("train_loss", "loss", "train_losses") if k in results), None)
-            loss_history = [float(x) for x in results[key]] if key else []
-        else:
-            loss_history = []
+    for attempt in range(MAX_RETRIES + 1):
+        current_lr = lr * (0.5 ** attempt)  # halve lr on each retry
+        current_seed = seed + attempt        # different seed avoids same bad init
 
-        # Fallback: compute final loss manually if history empty
-        if not loss_history:
-            model.eval()
-            with torch.no_grad():
-                pred = model(X)
-                loss_val = float(torch.nn.functional.mse_loss(pred, y).item())
-            loss_history = [loss_val]
+        torch.manual_seed(current_seed)
+        np.random.seed(current_seed)
 
-    except Exception as e:
-        raise RuntimeError(f"KAN training failed for dataset {dataset_id}: {e}")
+        dataset_dict = {
+            "train_input": X, "train_label": y,
+            "test_input":  X, "test_label":  y,
+        }
+
+        try:
+            results = model.fit(
+                dataset_dict,
+                opt="Adam",
+                steps=steps,
+                log=steps,
+                lamb=lamb,
+                lr=current_lr,
+                update_grid=True,
+                device="cpu",
+            )
+            if isinstance(results, dict):
+                key = next((k for k in ("train_loss", "loss", "train_losses") if k in results), None)
+                loss_history = [float(x) for x in results[key]] if key else []
+            else:
+                loss_history = []
+
+            # Fallback: compute final loss manually if history empty
+            if not loss_history:
+                model.eval()
+                with torch.no_grad():
+                    pred = model(X)
+                    loss_val = float(torch.nn.functional.mse_loss(pred, y).item())
+                loss_history = [loss_val]
+
+        except Exception as e:
+            raise RuntimeError(f"KAN training failed for dataset {dataset_id}: {e}")
+
+        # Check for divergence — observable from loss signal only
+        if len(loss_history) >= 2:
+            initial = loss_history[0]
+            final   = loss_history[-1]
+            if initial > 0 and final / initial > DIVERGENCE_THRESHOLD:
+                if attempt < MAX_RETRIES:
+                    print(f"[env_api] {dataset_id} | DIVERGENCE detected "
+                          f"(final/initial={final:.4f}/{initial:.4f}={final/initial:.1f}x) "
+                          f"→ retry with lr={current_lr * 0.5:.5f}")
+                    # Reinitialise model weights for clean retry
+                    from kan import KAN as _KAN
+                    _meta = {"width": list(model.width), "grid": int(getattr(model, 'grid', 3)), "k": 3}
+                    model = _KAN(width=_meta["width"], grid=_meta["grid"], k=_meta["k"],
+                                 seed=current_seed + 1)
+                    continue
+                else:
+                    print(f"[env_api] {dataset_id} | DIVERGENCE persists after {MAX_RETRIES} retries "
+                          f"— using best available result")
+        break  # no divergence, exit loop
 
     duration = time.time() - t0
 
     trace = {
-        "dataset_id":   dataset_id,
-        "loss_history": loss_history,
-        "n_steps":      len(loss_history),
-        "initial_loss": loss_history[0]  if loss_history else None,
-        "final_loss":   loss_history[-1] if loss_history else None,
-        "lr":           lr,
+        "dataset_id":        dataset_id,
+        "loss_history":      loss_history,
+        "n_steps":           len(loss_history),
+        "initial_loss":      loss_history[0]  if loss_history else None,
+        "final_loss":        loss_history[-1] if loss_history else None,
+        "lr":                lr,
+        "lr_used":           current_lr,
+        "divergence_retries": attempt,
         "param_count":  sum(p.numel() for p in model.parameters()),
         "model_hash":   _model_hash(model),
         "config":       config,
@@ -349,8 +375,7 @@ def predict_from_expr(expr_str: str, X) -> 'np.ndarray':
 
     # Evaluate safely
     try:
-        result = eval(expr_str, {"np": np, "x1": x1, "x2": x2, "tanh": np.tanh, "sqrt": np.sqrt, "log": np.log,
-           "exp": np.exp, "sin": np.sin, "cos": np.cos, "abs": np.abs})
+        result = eval(expr_str, {"np": np, "x1": x1, "x2": x2})
         result = np.array(result, dtype=np.float64).flatten()
     except Exception as e:
         raise ValueError(f"predict_from_expr failed on expr '{expr_str}': {e}")
@@ -358,3 +383,63 @@ def predict_from_expr(expr_str: str, X) -> 'np.ndarray':
     # Replace NaN/Inf with 0 to avoid score explosion
     result = np.where(np.isfinite(result), result, 0.0)
     return result
+
+
+# ── Safe refine wrapper ───────────────────────────────────────────────────────
+
+def safe_refine(model, grid: int = 5):
+    """
+    Wrapper around model.refine(grid) that handles pykan's internal
+    dependency on ./model/history.txt — a hardcoded relative path in the
+    pykan library that causes FileNotFoundError if the directory doesn't exist.
+
+    Always call safe_refine() BEFORE auto_symbolic(), not after:
+        1. train_kan(...)          # initial training
+        2. safe_refine(model, 5)   # increase spline resolution
+        3. train_kan(...)          # retrain on finer grid
+        4. auto_symbolic(...)      # symbolise on precise splines
+
+    Args:
+        model : trained KAN instance
+        grid  : new grid size (default 5, was 3 during initial training)
+
+    Returns:
+        refined KAN model
+    """
+    os.makedirs("./model", exist_ok=True)
+    try:
+        refined = model.refine(grid)
+        print(f"[env_api] refine({grid}) OK — grid updated")
+        return refined
+    except Exception as e:
+        print(f"[env_api] refine({grid}) failed: {e} — returning original model")
+        return model
+
+
+# ── Safe math primitives (OOD domain protection) ─────────────────────────────
+
+def safe_sqrt(x):
+    """
+    Domain-safe sqrt. Clips argument to 0 before sqrt to prevent NaN
+    when expressions extrapolate outside the training domain on OOD-2 regime.
+    
+    Use in discover.py instead of np.sqrt when the argument can go negative
+    out-of-distribution (e.g. sqrt(sin(x1)) which is only valid when sin>0).
+
+    Example in discover_law():
+        return '1.05 * safe_sqrt(-0.009*x2 + np.sin(0.98*x1) + 0.87)'
+    
+    predict() imports safe_sqrt from env_api.kan_env automatically.
+    """
+    return np.sqrt(np.maximum(np.asarray(x, dtype=np.float64), 0.0))
+
+
+def safe_log(x):
+    """
+    Domain-safe log. Clips argument to 1e-8 before log to prevent NaN/−inf
+    when expressions extrapolate to negative or zero values out-of-distribution.
+
+    Example in discover_law():
+        return '2.3 * safe_log(x1 + 0.5 * x2)'
+    """
+    return np.log(np.maximum(np.asarray(x, dtype=np.float64), 1e-8))
